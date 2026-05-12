@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.sns.app.member.MemberMapper">
+  
+  <insert id="join" parameterType="MemberDTO">
+  	INSERT INTO "USER"
+  	VALUES (
+  		default,
+  		#{userId},
+  		#{userName},
+  		#{userPw},
+  		#{userEmail},
+  		#{userBirth},
+  		#{userAgr}
+  	)
+  </insert>
+  
+  <insert id="addProfile" parameterType="ProfileDTO">
+  	INERT INTO "USER_IMG"
+  	VALUES (
+  		default,
+  		#{fileName},
+  		#{oriName},
+  		#{userNo}
+  	)
+  </insert>
+  
+  <select id="detail" parameterType="MemberDTO" resultMap="detailResult">
+  	SELECT *
+  	FROM "USER" u
+  		INNER JOIN "USER_IMG" ui
+  		USING ("USER_NO")
+  		INNER JOIN "ROLE" r
+  		USING("ROLE_NO")
+  	WHERE "USER_NO"=#{userNo}
+  </select>
+  
+  <resultMap type="MemberDTO" id="detailResult">
+  	<id column="USER_NO" property="userNo"/>
+  	<result column="USER_ID" property="userId"/>
+  	<result column="USER_NAME" property="userName"/>
+  	<result column="USER_PW" property="userPw"/>
+  	<result column="USER_EMAIL" property="userEmail"/>
+  	<result column="USER_BIRTH" property="userBirth"/>
+  	<result column="USER_AGR" property="userAgr"/>
+  	<result column="ENABLED" property="enabled"/>
+  	<result column="CREDENTIALS_NON_LOCKED" property="credentialsNonLocked"/>
+  	<result column="ACCOUNT_NON_LOCKED" property="accountNonLocked"/>
+  	<result column="ACCOUNT_NON_EXPIRED" property="accountNonExpired"/>
+  	
+  	<association property="profileDTO" javaType="ProfileDTO">
+  		<id column="FILE_NO" property="fileNo"/>
+  		<result column="FILE_NAME" property="fileName"/>
+  		<result column="ORI_NAME" property="oriName"/>
+  	</association>
+  	<collection property="roles" javaType="java.util.List" ofType="RoleDTO">
+  		<id column="ROLE_NO" property="roleNo"/>
+  		<result column="ROLE_NAME" property="roleName"/>
+  	</collection>
+  
+  
+  
+  </resultMap>
+  
+  
+  
+  
+  
+  
+  
+  
+  </mapper>
