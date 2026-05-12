@@ -10,11 +10,11 @@ import lombok.ToString;
 @Setter
 @ToString
 public class PostDTO extends FeedDTO {
-
-	private String postLocation;
-	private String postContent;
-	private Long postRef;
-	private Long postStep;
-	private Long postDepth;
+	
+	private String feedLocation;
+	private String feedContent;
+	private Long feedRef;
+	private Long feedStep;
+	private Long feedDepth;
 
 }

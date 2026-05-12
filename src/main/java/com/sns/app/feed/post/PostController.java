@@ -38,18 +38,7 @@ public class PostController {
 	public String getName() {
 		return this.name;
 	}
-	
-	@GetMapping("list")
-	public String list(Pager pager, Model model) throws Exception {
-		
-		List<FeedDTO> postList = postService.list(pager);
-		model.addAttribute("postList", postList);
-		
-		return "feed/list";
-		
-		
-	}
-	
+
 	// 피드 상세 조회
 	@GetMapping("detail")
 	public String detail(PostDTO postDTO, Model model) throws Exception {
@@ -58,10 +47,9 @@ public class PostController {
 		return "feed/detail";
 	}
 
-	// 등록 폼 이동
+	// 2. 등록 폼 이동
 	@GetMapping("create")
-	public String create(Model model) throws Exception {
-		model.addAttribute("name", name);
+	public String create() throws Exception {
 		return "feed/create";
 	}
 
@@ -102,11 +90,11 @@ public class PostController {
 		model.addAttribute("fileDTO", fileDTO);
 		return "fileDownView";
 	}
-	
+
 	@GetMapping("getDetail")
 	@ResponseBody
 	public FeedDTO getDetail(PostDTO postDTO) throws Exception {
-	    return postService.detail(postDTO);
+		return postService.detail(postDTO);
 	}
 
 }

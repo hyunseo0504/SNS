@@ -38,17 +38,6 @@ public class StoryController {
 		return this.name;
 	}
 	
-	@GetMapping("list")
-	public String list(Pager pager, Model model) throws Exception {
-		
-        List<FeedDTO> storyList = storyService.list(pager); 
-        
-        model.addAttribute("storyList", storyList);
-
-        
-        return "feed/list";
-		
-	}
 
 	// 2. 등록 폼 이동
 	@GetMapping("create")

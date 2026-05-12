@@ -9,9 +9,9 @@
 		<!-- <include refid="search_sql"></include> -->
 	</select>
 
-	<select id="list" resultType="PostDTO">
-		SELECT * FROM "POST"
-		<!-- <include refid="search_sql"></include> -->
+	<select id="list" resultMap="detailResult" parameterType="Pager">
+		SELECT P.*, PI."FILE_NO", PI."FILE_NAME", PI."ORI_NAME" FROM "POST" P
+        LEFT JOIN "POST_IMG" PI ON P."FEED_NO" = PI."FEED_NO"
 		ORDER BY "FEED_DATE" DESC
 		LIMIT #{perPage} OFFSET #{startNum}
 	</select>
@@ -30,12 +30,12 @@
 	<resultMap type="PostDTO" id="detailResult">
 		<id column="FEED_NO" property="feedNo" />
 		<result column="FEED_DATE" property="feedDate" />
-		<result column="POST_LOCATION" property="postLocation" />
-		<result column="POST_CONTENT" property="postContent" />
+		<result column="FEED_LOCATION" property="feedLocation" />
+		<result column="FEED_CONTENT" property="feedContent" />
 		<result column="FEED_THUMB" property="feedThumb" />
-		<result column="POST_REF" property="postRef" />
-		<result column="POST_STEP" property="postStep" />
-		<result column="POST_DEPTH" property="postDepth" />
+		<result column="FEED_REF" property="feedRef" />
+		<result column="FEED_STEP" property="feedStep" />
+		<result column="FEED_DEPTH" property="feedDepth" />
 		<result column="USER_NO" property="userNo" />
 		<collection property="list" javaType="java.util.List"
 			ofType="PostFileDTO">
@@ -48,8 +48,9 @@
 	<insert id="create" parameterType="PostDTO"
 		useGeneratedKeys="true" keyProperty="feedNo">
 		INSERT INTO "POST"
+		("FEED_NO","FEED_DATE","FEED_LOCATION","FEED_CONTENT","FEED_THUMB","FEED_REF","FEED_STEP","FEED_DEPTH","USER_NO")
 		VALUES (default,
-		now(), #{postLocation}, #{postContent},
+		now(), #{feedLocation}, #{feedContent},
 		#{feedThumb},0,0,0,#{userNo})
 	</insert>
 	<insert id="createFile" parameterType="PostFileDTO">

@@ -32,7 +32,8 @@
 	height: 75px;
 	border-radius: 50%;
 	padding: 3px;
-	background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+	background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%
+		, #bc1888 100%);
 	cursor: pointer;
 }
 
@@ -90,110 +91,114 @@
 
 <body id="page-top">
 
-<div id="wrapper">
+	<div id="wrapper">
 
-	<c:import url="/WEB-INF/views/temp/sidebar.jsp"></c:import>
+		<c:import url="/WEB-INF/views/temp/sidebar.jsp"></c:import>
 
-	<div id="content-wrapper" class="d-flex flex-column">
+		<div id="content-wrapper" class="d-flex flex-column">
 
-		<div id="content">
+			<div id="content">
 
-			<c:import url="/WEB-INF/views/temp/topbar.jsp"></c:import>
+				<c:import url="/WEB-INF/views/temp/topbar.jsp"></c:import>
 
-			<div class="container-fluid">
+				<div class="container-fluid">
 
-				<div class="row justify-content-center">
+					<div class="row justify-content-center">
 
-					<div class="col-lg-8 col-md-10">
+						<div class="col-lg-8 col-md-10">
 
-						<!-- STORY -->
-						<div class="story-wrapper">
+							<!-- STORY -->
+							<div class="story-wrapper">
 
-							<c:forEach items="${storyList}" var="s">
+								<c:forEach items="${storyList}" var="s">
 
-								<div class="story-item">
+									<div class="story-item">
 
-									<div class="story-circle"
-										onclick="openDetail('story', '${s.feedNo}')">
+										<div class="story-circle"
+											onclick="openDetail('story', '${s.feedNo}')">
 
-										<c:choose>
+											<c:choose>
 
-											<c:when test="${not empty s.list and not empty s.list[0].fileName}">
+												<c:when
+													test="${not empty s.list and not empty s.list[0].fileName}">
 
-												<img src="/files/story/${s.list[0].fileName}"
-													onerror="this.src='/img/default_user.avif'">
+													<img src="/files/story/${s.list[0].fileName}"
+														onerror="this.src='/img/default_user.avif'">
 
-											</c:when>
+												</c:when>
 
-											<c:otherwise>
+												<c:otherwise>
 
-												<img src="/img/default_user.avif">
+													<img src="/img/default_user.avif">
 
-											</c:otherwise>
+												</c:otherwise>
 
-										</c:choose>
+											</c:choose>
+
+										</div>
+
+										<small class="text-truncate d-block" style="width: 75px;">
+											User ${s.userNo} </small>
 
 									</div>
 
-									<small class="text-truncate d-block" style="width: 75px;">
-										User ${s.userNo}
-									</small>
+								</c:forEach>
 
-								</div>
+							</div>
 
-							</c:forEach>
+							<!-- POST -->
+							<div class="post-container">
 
-						</div>
+								<c:forEach items="${postList}" var="p">
 
-						<!-- POST -->
-						<div class="post-container">
+									<article class="post-card">
 
-							<c:forEach items="${postList}" var="p">
+										<div class="post-header p-3">
+											<strong>User ${p.userNo}</strong>
 
-								<article class="post-card">
+										</div>
 
-									<div class="post-header p-3">
-										<strong>User ${p.userNo}</strong>
-									</div>
+										<div class="post-img-wrapper"
+											onclick="openDetail('post', '${p.feedNo}')">
+											<img src="/files/post/${p.list[0].fileName}">
 
-									<div class="post-img-wrapper"
-										onclick="openDetail('post', '${p.feedNo}')">
 
-										<c:choose>
+											<c:choose>
 
-											<c:when test="${not empty p.list and not empty p.list[0].fileName}">
+												<c:when
+													test="${not empty p.list and not empty p.list[0].fileName}">
 
-												<img src="/files/sns/post/${p.list[0].fileName}"
-													
-													onerror="this.src='/img/default_post.png'">
 
-											</c:when>
 
-											<c:otherwise>
+												</c:when>
+
+												<%-- <c:otherwise>
 
 												<img src="/img/default_post.png" class="post-img">
 
-											</c:otherwise>
+											</c:otherwise> --%>
 
-										</c:choose>
+											</c:choose>
 
-									</div>
-
-									<div class="post-content">
-
-										<div class="location">
-											<i class="fas fa-map-marker-alt"></i> ${p.postLocation}
 										</div>
 
-										<div class="text">
-											<strong>User ${p.userNo}</strong> ${p.postContent}
+										<div class="post-content">
+
+											<div class="location">
+												<i class="fas fa-map-marker-alt"></i> ${p.feedLocation}
+											</div>
+
+											<div class="text">
+												<strong>User ${p.userNo}</strong> ${p.feedContent}
+											</div>
+
 										</div>
 
-									</div>
+									</article>
 
-								</article>
+								</c:forEach>
 
-							</c:forEach>
+							</div>
 
 						</div>
 
@@ -207,27 +212,27 @@
 
 	</div>
 
-</div>
+	<!-- MODAL -->
+	<div id="detailModal" class="modal" tabindex="-1"
+		style="display: none; background: rgba(0, 0, 0, 0.85); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;">
 
-<!-- MODAL -->
-<div id="detailModal" class="modal" tabindex="-1"
-	style="display:none; background:rgba(0,0,0,0.85); position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999;">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
 
-	<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content">
 
-		<div class="modal-content">
+				<div class="modal-body p-0">
 
-			<div class="modal-body p-0">
+					<div class="row no-gutters">
 
-				<div class="row no-gutters">
+						<div class="col-md-7" id="mImage"></div>
 
-					<div class="col-md-7" id="mImage"></div>
+						<div class="col-md-5 p-4 bg-white">
 
-					<div class="col-md-5 p-4 bg-white">
+							<div id="mLocation" class="text-muted small mb-2"></div>
 
-						<div id="mLocation" class="text-muted small mb-2"></div>
+							<div id="mContent"></div>
 
-						<div id="mContent"></div>
+						</div>
 
 					</div>
 
@@ -239,68 +244,68 @@
 
 	</div>
 
-</div>
+	<c:import url="/WEB-INF/views/temp/footer_script.jsp"></c:import>
 
-<c:import url="/WEB-INF/views/temp/footer_script.jsp"></c:import>
+	<script>
+		function openDetail(type, num) {
 
-<script>
+			$
+					.ajax({
 
-function openDetail(type, num) {
+						type : "GET",
+						url : '/' + type + '/getDetail',
+						data : {
+							feedNo : num
+						},
 
-	$.ajax({
+						success : function(res) {
 
-		type: "GET",
-		url: '/' + type + '/getDetail',
-		data: { feedNo: num },
+							$('#mLocation').text(res.feedLocation || '');
 
-		success: function(res) {
+							$('#mContent').html(
+									'<strong>User ' + res.userNo + '</strong> '
+											+ (res.feedContent || ''));
 
-			$('#mLocation').text(res.postLocation || '');
+							let fileName = (res.list && res.list.length > 0) ? res.list[0].fileName
+									: '';
 
-			$('#mContent').html(
-				'<strong>User ' + res.userNo + '</strong> ' +
-				(res.postContent || '')
-			);
+							let folder = post;
 
-			let fileName = (res.list && res.list.length > 0)
-				? res.list[0].fileName
-				: '';
+							if (fileName) {
 
-			let folder = type; // story or post
+								// Resource handler maps /files/** -> filesystem root (app.upload.path)
+								// Use /files/<folder>/<fileName> so the path resolves to
+								// {app.upload.path}/{folder}/{fileName}
+								$('#mImage')
+										.html(
+												'<img src="/files/' + folder + '/' + fileName + '" class="img-fluid">');
 
-			if(fileName) {
+							} /* else {
 
-				$('#mImage').html(
-					'<img src="/files/' + folder + '/' + fileName + '" class="img-fluid">'
-				);
+																						$('#mImage').html(
+																							'<img src="/img/default_post.png" class="img-fluid">'
+																						);
 
-			} else {
+																					} */
 
-				$('#mImage').html(
-					'<img src="/img/default_post.png" class="img-fluid">'
-				);
+							$('#detailModal').fadeIn(200);
+							$('body').css('overflow', 'hidden');
 
-			}
+						}
 
-			$('#detailModal').fadeIn(200);
-			$('body').css('overflow', 'hidden');
+					});
 
 		}
 
-	});
+		$('#detailModal').click(function(e) {
 
-}
+			if (e.target.id === 'detailModal') {
+				$('#detailModal').fadeOut(200);
+				$('body').css('overflow', 'auto');
+			}
 
-$('#detailModal').click(function(e){
-
-	if(e.target.id === 'detailModal') {
-		$('#detailModal').fadeOut(200);
-		$('body').css('overflow', 'auto');
-	}
-
-});
-
-</script>
+		});
+	</script>
 
 </body>
 </html>

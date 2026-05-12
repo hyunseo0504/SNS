@@ -88,4 +88,6 @@ public class PostService implements FeedService {
     public FileDTO fileDetail(FileDTO fileDTO) throws Exception {
         return postMapper.fileDetail(fileDTO);
     }
+
+
 }
