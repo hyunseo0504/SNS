@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.sns.app.feed.FeedDTO;
 import com.sns.app.feed.FeedService; // FeedService 인터페이스가 있다고 가정
-import com.sns.app.feed.post.PostFileDTO;
 import com.sns.app.file.FileDTO;
 import com.sns.app.file.FileManager;
 import com.sns.app.pager.Pager;
@@ -90,8 +89,7 @@ public class StoryService implements FeedService {
 
 	@Override
 	public FeedDTO detail(FeedDTO feedDTO) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return storyMapper.detail(feedDTO);
 	}
 
 	@Override

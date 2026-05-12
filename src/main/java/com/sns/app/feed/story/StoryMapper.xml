@@ -17,6 +17,14 @@
 		LIMIT #{perPage} OFFSET #{startNum}
 	</select>
 
+	<select id="detail" parameterType="StoryDTO" resultMap="detailResult">
+		SELECT
+		S.*,
+		SI."FILE_NO", SI."FILE_NAME", SI."ORI_NAME" FROM "STORY" S
+		LEFT OUTER JOIN "STORY_IMG" SI ON S."FEED_NO" = SI."FEED_NO"
+		WHERE S."FEED_NO" = #{feedNo}
+	</select>
+
 	<resultMap type="StoryDTO" id="detailResult">
 		<id column="FEED_NO" property="feedNo" />
 		<result column="FEED_DATE" property="feedDate" />
