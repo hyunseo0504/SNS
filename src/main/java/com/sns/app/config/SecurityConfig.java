@@ -36,40 +36,43 @@ public class SecurityConfig {
 				;
 		};
 	}
-	
+	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception{
 		security
 			.cors(cors->{cors.disable();})
 			.csrf(csrf->{csrf.disable();})
 			.authorizeHttpRequests(auth->{
 				auth
+					.requestMatchers("/member/*").permitAll()
 					.anyRequest().permitAll()
 					;
 			})
-			.formLogin(form->{
-				form
-					.loginPage("/member/login")
-					.loginProcessingUrl("/member/login")
-					.successHandler(successHandler)
-					.failureHandler(failHandler)
-					;
-			})
-			.rememberMe(remember->{
-				remember
-					.rememberMeParameter("rememberMe")
-					.key("rememberKey")
-					.tokenValiditySeconds(60*60*24)
-					.userDetailsService(memberServiceImpl)
-					.authenticationSuccessHandler(successHandler)
-					.useSecureCookie(true)
-					;
-			})
-			.sessionManagement(session->{
-				session
-					.maximumSessions(1)
-					;
-			})
+//			.formLogin(form->{
+//				form
+//					.loginPage("/member/login")
+//					.loginProcessingUrl("/member/login")
+//					.successHandler(successHandler)
+//					.failureHandler(failHandler)
+//					;
+//			})
+//			.rememberMe(remember->{
+//				remember
+//					.rememberMeParameter("rememberMe")
+//					.key("rememberKey")
+//					.tokenValiditySeconds(60*60*24)
+//					.userDetailsService(memberServiceImpl)
+//					.authenticationSuccessHandler(successHandler)
+//					.useSecureCookie(true)
+//					;
+//			})
+//			.sessionManagement(session->{
+//				session
+//					.maximumSessions(1)
+//					.maxSessionsPreventsLogin(true)
+//					.expiredUrl("/member/join")
+//					;
+//			})
 			;
-			
+		return security.build();
 	}
 }
