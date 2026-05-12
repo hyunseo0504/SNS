@@ -37,6 +37,18 @@ public class StoryController {
 	public String getName() {
 		return this.name;
 	}
+	
+	@GetMapping("list")
+	public String list(Pager pager, Model model) throws Exception {
+		
+        List<FeedDTO> storyList = storyService.list(pager); 
+        
+        model.addAttribute("storyList", storyList);
+
+        
+        return "feed/list";
+		
+	}
 
 	// 2. 등록 폼 이동
 	@GetMapping("create")
@@ -49,7 +61,7 @@ public class StoryController {
 	public String create(StoryDTO storyDTO, @RequestParam(value="attach", required = false) MultipartFile[] attach) throws Exception {
 		int result = storyService.create(storyDTO, attach);
 
-		return "redirect:./list";
+		return "redirect:/feed/list";
 	}
 
 	// 4. 상세 조회 
@@ -64,7 +76,7 @@ public class StoryController {
 	@PostMapping("delete")
 	public String delete(StoryDTO storyDTO) throws Exception {
 		int result = storyService.delete(storyDTO);
-		return "redirect:./list";
+		return "redirect:/feed/list";
 	}
 
 	// 6. 파일 다운로드

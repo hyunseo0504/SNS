@@ -30,12 +30,12 @@
 	<resultMap type="PostDTO" id="detailResult">
 		<id column="FEED_NO" property="feedNo" />
 		<result column="FEED_DATE" property="feedDate" />
-		<result column="FEED_LOCATION" property="feedLocation" />
-		<result column="FEED_CONTENT" property="feedContent" />
+		<result column="POST_LOCATION" property="postLocation" />
+		<result column="POST_CONTENT" property="postContent" />
 		<result column="FEED_THUMB" property="feedThumb" />
-		<result column="FEED_REF" property="feedRef" />
-		<result column="FEED_STEP" property="feedStep" />
-		<result column="FEED_DEPTH" property="feedDepth" />
+		<result column="POST_REF" property="postRef" />
+		<result column="POST_STEP" property="postStep" />
+		<result column="POST_DEPTH" property="postDepth" />
 		<result column="USER_NO" property="userNo" />
 		<collection property="list" javaType="java.util.List"
 			ofType="PostFileDTO">
@@ -49,7 +49,7 @@
 		useGeneratedKeys="true" keyProperty="feedNo">
 		INSERT INTO "POST"
 		VALUES (default,
-		now(), #{feedLocation}, #{feedContent},
+		now(), #{postLocation}, #{postContent},
 		#{feedThumb},0,0,0,#{userNo})
 	</insert>
 	<insert id="createFile" parameterType="PostFileDTO">

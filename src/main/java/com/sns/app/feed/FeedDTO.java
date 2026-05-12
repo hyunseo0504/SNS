@@ -17,6 +17,7 @@ public class FeedDTO {
 	private Long feedNo;
 	private LocalDateTime feedDate;
 	private Long userNo;
+	private Long feedThumb;
 	
 	private List<FileDTO> list;
 

@@ -69,7 +69,7 @@
                                         <p>${name eq 'story' ? '스토리 사진을 선택하세요' : '포스트 사진을 선택하세요'}</p>
                                     </div>
                                 </div>
-                                <input type="file" name="files" id="fileInput" class="d-none" accept="image/*" required>
+                                <input type="file" name="attach" id="fileInput" class="d-none" accept="image/*" required>
 
                                 <div class="card-body">
                                     
@@ -78,12 +78,12 @@
                                         <c:when test="${name eq 'post'}">
                                             <div class="form-group mb-3">
                                                 <label class="small font-weight-bold text-dark">위치 추가</label>
-                                                <input type="text" name="feedLocation" class="form-control" placeholder="장소를 입력하세요">
+                                                <input type="text" name="postLocation" class="form-control" placeholder="장소를 입력하세요">
                                             </div>
 
                                             <div class="form-group mb-4">
                                                 <label class="small font-weight-bold text-dark">문구 입력</label>
-                                                <textarea name="feedContent" class="form-control" rows="4" placeholder="내용을 입력하세요..."></textarea>
+                                                <textarea name="postContent" class="form-control" rows="4" placeholder="내용을 입력하세요..."></textarea>
                                             </div>
                                         </c:when>
 

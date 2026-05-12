@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,8 +20,12 @@ import com.sns.app.feed.FeedService;
 import com.sns.app.file.FileDTO;
 import com.sns.app.pager.Pager;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Controller
 @RequestMapping("/post/*")
+@CrossOrigin("*")
 public class PostController {
 
 	@Autowired
@@ -33,8 +38,18 @@ public class PostController {
 	public String getName() {
 		return this.name;
 	}
-
-
+	
+	@GetMapping("list")
+	public String list(Pager pager, Model model) throws Exception {
+		
+		List<FeedDTO> postList = postService.list(pager);
+		model.addAttribute("postList", postList);
+		
+		return "feed/list";
+		
+		
+	}
+	
 	// 피드 상세 조회
 	@GetMapping("detail")
 	public String detail(PostDTO postDTO, Model model) throws Exception {
@@ -54,7 +69,7 @@ public class PostController {
 	@PostMapping("create")
 	public String create(PostDTO postDTO, @RequestParam("attach") MultipartFile[] attach) throws Exception {
 		int result = postService.create(postDTO, attach);
-		return "redirect:./list";
+		return "redirect:/feed/list";
 	}
 
 	// 피드 수정 폼 이동
@@ -69,14 +84,14 @@ public class PostController {
 	@PostMapping("update")
 	public String update(PostDTO postDTO, @RequestParam("attach") MultipartFile[] attach) throws Exception {
 		int result = postService.update(postDTO, attach);
-		return "redirect:./list";
+		return "redirect:/feed/list";
 	}
 
 	// 피드 삭제 처리
 	@PostMapping("delete")
 	public String delete(PostDTO postDTO) throws Exception {
 		int result = postService.delete(postDTO);
-		return "redirect:./list";
+		return "redirect:/feed/list";
 	}
 
 	// 파일 다운로드 (이미지/첨부파일)
