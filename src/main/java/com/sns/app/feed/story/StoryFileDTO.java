@@ -1,4 +1,4 @@
-package com.sns.app.feed.post;
+package com.sns.app.feed.story;
 
 import com.sns.app.file.FileDTO;
 
@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
-public class PostFileDTO extends FileDTO{
+public class StoryFileDTO extends FileDTO {
 	
 	private Long feedNo;
 
