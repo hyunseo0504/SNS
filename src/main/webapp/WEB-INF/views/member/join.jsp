@@ -70,9 +70,34 @@
 						    <!-- <span id="birthError"></span> -->
 						  </div>
 						  
-						  
-						  
 						  <div class="form-group">
+						    <label for="userAgr">이용동의</label>
+						    <input type="checkbox"id="userAgr">
+						    <form:errors path="userAgr"></form:errors>
+						    <!-- <span id="birthError"></span> -->
+						  </div>
+							<div class="form-group ml-3">
+								<label> 
+								<input type="checkbox" class="ch" name="agreement1"> 이용약관 동의
+								</label>
+							</div>
+							<div class="form-group ml-3">
+								<label> 
+								<input type="checkbox" class="ch" name="agreement2"> 개인정보 수집 동의
+								</label>
+							</div>
+							<div class="form-group ml-3">
+								<label> 
+								<input type="checkbox" class="ch" name="agreement3"> 마케팅 정보 수신 동
+								</label>
+							</div>
+
+
+
+
+
+
+							<div class="form-group">
 						  	<label>첨부파일</label>
 						  	<input type="file" name="attach" class="form-control">
 
@@ -96,6 +121,6 @@
 	</div>
 	<!-- End wrapper -->
 	<c:import url="/WEB-INF/views/temp/footer_script.jsp"></c:import>
-	<!-- <script src="/js/member/join.js"></script> -->
+	<script src="/js/member/join.js"></script>
 </body>
 </html>
