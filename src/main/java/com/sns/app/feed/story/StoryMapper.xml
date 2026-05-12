@@ -5,7 +5,6 @@
 <mapper namespace="com.sns.app.feed.story.StoryMapper">
 	<select id="getCount" resultType="Long" parameterType="Pager">
 		SELECT COUNT("FEED_NO") FROM "STORY"
-		<include refid="search_sql"></include>
 	</select>
 
 	<select id="list" resultType="StoryDTO" parameterType="Pager">
