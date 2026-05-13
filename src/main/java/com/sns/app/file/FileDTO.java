@@ -10,7 +10,7 @@ import lombok.ToString;
 public class FileDTO {
 
 	
-	private Long fileNum;
+	private Long fileNo;
 	private String fileName;
 	private String oriName;
 	
