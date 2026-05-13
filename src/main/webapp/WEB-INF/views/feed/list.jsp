@@ -52,6 +52,7 @@
 									<article class="post-card">
 										<div class="p-3">
 											<strong>${p.memberDTO.userNickname}</strong>
+											<br>${p.feedLocation}
 										</div>
 
 										<div class="post-img-wrapper"

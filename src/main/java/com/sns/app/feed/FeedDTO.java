@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.sns.app.file.FileDTO;
+import com.sns.app.member.MemberDTO;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,8 @@ public class FeedDTO {
 	private LocalDateTime feedDate;
 	private Long userNo;
 	private Long feedThumb;
+	
+	private MemberDTO memberDTO;
 	
 	private List<FileDTO> list;
 

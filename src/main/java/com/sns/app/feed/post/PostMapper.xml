@@ -63,9 +63,6 @@
 		<result column="FEED_LOCATION" property="feedLocation" />
 		<result column="FEED_CONTENT" property="feedContent" />
 		<result column="FEED_THUMB" property="feedThumb" />
-		<result column="FEED_REF" property="feedRef" />
-		<result column="FEED_STEP" property="feedStep" />
-		<result column="FEED_DEPTH" property="feedDepth" />
 		<result column="USER_NO" property="userNo" />
 
 		<association property="memberDTO" javaType="MemberDTO">
@@ -90,9 +87,9 @@
 	<insert id="create" parameterType="PostDTO"
 		useGeneratedKeys="true" keyProperty="feedNo">
 		INSERT INTO "POST"
-		("FEED_DATE","FEED_LOCATION","FEED_CONTENT","FEED_THUMB","FEED_REF","FEED_STEP","FEED_DEPTH","USER_NO")
+		("FEED_DATE","FEED_LOCATION","FEED_CONTENT","FEED_THUMB","USER_NO")
 		VALUES
-		(now(),#{feedLocation},#{feedContent},#{feedThumb},0,0,0,#{userNo})
+		(now(),#{feedLocation},#{feedContent},#{feedThumb},#{userNo})
 	</insert>
 	<insert id="createFile" parameterType="PostFileDTO">
 		INSERT INTO "POST_IMG"
