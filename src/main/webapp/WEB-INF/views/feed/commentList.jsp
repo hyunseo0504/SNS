@@ -6,8 +6,9 @@
 <c:forEach items="${commentList}" var="c">
     <div class="d-flex mb-3 align-items-start">
         <div class="me-2">
-            <!-- 유저 번호 대신 닉네임이 DTO에 있다면 그걸 쓰시는 게 좋습니다 -->
-            <strong style="font-size: 0.9rem;">user_${c.userNo}</strong>
+            <strong style="font-size: 0.9rem;">
+                ${not empty c.memberDTO and not empty c.memberDTO.userNickname ? c.memberDTO.userNickname : 'user_'.concat(c.userNo)}
+            </strong>
         </div>
         <div style="font-size: 0.9rem; flex: 1;">
             <span>${c.commentContent}</span>

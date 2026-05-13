@@ -2,6 +2,8 @@ package com.sns.app.comment;
 
 import java.time.LocalDateTime;
 
+import com.sns.app.member.MemberDTO;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,5 +23,6 @@ public class CommentDTO {
 	private Long commentRef;
 	private Long commentStep;
 	private Long commentDepth;
+	private MemberDTO memberDTO;
 	
 }
