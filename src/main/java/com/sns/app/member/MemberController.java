@@ -58,7 +58,7 @@ public class MemberController {
 		}
 		int result = memberServiceImpl.join(memberDTO, attach);
 		
-		return "rediect:/";
+		return "redirect:/feed/list";
 	}
 	
 	@GetMapping("idCheck")

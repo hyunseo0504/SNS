@@ -23,7 +23,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler{
 			if(s.equals("1")) {
 				Cookie cookie = new Cookie("rememberId", authentication.getName());
 				cookie.setMaxAge(60);
-				cookie.setPath("/");
+				cookie.setPath("/Sfeed/list");
 				response.addCookie(cookie);
  			} else {
  				throw new Exception();
@@ -31,10 +31,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler{
 		} catch (Exception e) {
 			Cookie cookie = new Cookie("rememberId", "");
 			cookie.setMaxAge(0);
-			cookie.setPath("/");
+			cookie.setPath("/feed/list");
 			response.addCookie(cookie);
 		}
 		
-		response.sendRedirect("/");
+		response.sendRedirect("/feed/list");
 	}
 }

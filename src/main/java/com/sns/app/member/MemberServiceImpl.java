@@ -14,8 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sns.app.file.FileManager;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class MemberServiceImpl implements MemberService, UserDetailsService{
 	
 	@Autowired
@@ -31,12 +33,18 @@ public class MemberServiceImpl implements MemberService, UserDetailsService{
 	private PasswordEncoder encoder;
 	
 	
-	@SneakyThrows
+	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		MemberDTO memberDTO = new MemberDTO();
 		memberDTO.setUserId(username);
-		memberDTO = memberMapper.detail(memberDTO);
+		try {
+			memberDTO = memberMapper.detail(memberDTO);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return memberDTO;
 	}
 	
