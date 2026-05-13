@@ -5,13 +5,26 @@
   
   <mapper namespace="com.sns.app.member.MemberMapper">
   
+  <update id="update" parameterType="MemberDTO">
+  	UPDATE "USER"
+  	<set>
+  		<if test="userId != null">"USER_ID"=#{username}</if>
+  		<if test="userNickname != null">"USER_NAME"=#{userNickname}</if>
+  		<if test="userPw != null">"USER_PW"=#{password}</if>
+  		<if test="userEmail != null">"USER_EMAIL"=#{userEmail</if>
+  		<if test="userBirth != null">"USER_BIRTH"=#{userBirth}</if>
+  		<if test="userAgr != null">"USER_AGR"=#{userAgr}</if>
+  	</set>
+  	WHERE "USER_ID"=#{username}
+  </update>
+  
   <insert id="join" parameterType="MemberDTO">
   	INSERT INTO "USER"
   	VALUES (
   		default,
-  		#{userId},
-  		#{userName},
-  		#{userPw},
+  		#{username},
+  		#{userNickname},
+  		#{password},
   		#{userEmail},
   		#{userBirth},
   		#{userAgr}
@@ -19,9 +32,8 @@
   </insert>
   
   <insert id="addProfile" parameterType="ProfileDTO">
-  	INERT INTO "USER_IMG"
+  	INSERT INTO "USER_IMG" ("FILE_NAME", "ORI_NAME", "USER_NO")
   	VALUES (
-  		default,
   		#{fileName},
   		#{oriName},
   		#{userNo}
@@ -33,6 +45,8 @@
   	FROM "USER" u
   		INNER JOIN "USER_IMG" ui
   		USING ("USER_NO")
+  		INNER JOIN "USER_ROLE"
+  		USING ("USER_NO")
   		INNER JOIN "ROLE" r
   		USING("ROLE_NO")
   	WHERE "USER_NO"=#{userNo}
@@ -40,9 +54,9 @@
   
   <resultMap type="MemberDTO" id="detailResult">
   	<id column="USER_NO" property="userNo"/>
-  	<result column="USER_ID" property="userId"/>
-  	<result column="USER_NAME" property="userName"/>
-  	<result column="USER_PW" property="userPw"/>
+  	<result column="USER_ID" property="username"/>
+  	<result column="USER_NICKNAME" property="userNickname"/>
+  	<result column="USER_PW" property="password"/>
   	<result column="USER_EMAIL" property="userEmail"/>
   	<result column="USER_BIRTH" property="userBirth"/>
   	<result column="USER_AGR" property="userAgr"/>
@@ -60,10 +74,8 @@
   		<id column="ROLE_NO" property="roleNo"/>
   		<result column="ROLE_NAME" property="roleName"/>
   	</collection>
-  
-  
-  
   </resultMap>
+  
   
   
   
