@@ -11,6 +11,48 @@ let storySlideCount = 0;
 let storyUserOrder = [];
 let currentStoryUserNo = null;
 
+function getCommentList(feedNo) {
+    const listArea = document.getElementById("comment_display_list");
+    if (!listArea) return;
+
+    fetch(`/feed/comment/list?feedNo=${feedNo}`)
+        .then(r => r.text())
+        .then(r => {
+            listArea.innerHTML = r.trim();
+        })
+        .catch(e => console.error("댓글 로딩 실패:", e));
+}
+
+function bindCommentEvents(feedNo) {
+    const commentBtn = document.getElementById("comment_add_btn");
+    const commentInput = document.getElementById("comment_contents");
+
+    if (!commentBtn) return;
+
+    commentBtn.onclick = () => {
+        const content = commentInput.value.trim();
+        if (!content) return;
+
+        let p = new FormData();
+        p.append("commentContent", content);
+        p.append("feedNo", feedNo);
+
+        fetch("/feed/comment/create", {
+            method: "POST",
+            body: p
+        })
+        .then(r => r.text())
+        .then(r => {
+            if (r.trim() > 0) {
+                commentInput.value = "";
+                getCommentList(feedNo); // 등록 후 리스트 새로고침
+            } else {
+                alert("댓글 등록 실패");
+            }
+        });
+    };
+}
+
 function getStoryUserOrder() {
     const items = Array.from(document.querySelectorAll('.story-wrapper .story-item'));
     const seen = new Set();
@@ -247,47 +289,77 @@ async function renderStory(feedNo, userNo) {
 // 하단 포스트 클릭 시
 async function renderPost(feedNo) {
     detailModal.classList.add('post-mode');
-    mImageArea.className = 'col-md-7'; // 포스트는 기존 가로 비율 유지
+    mImageArea.className = 'col-md-7';
 
     try {
         const response = await fetch(`/feed/detail/post/${feedNo}`);
         const data = await response.json();
         const ownerName = data.memberDTO?.userNickname || data.memberDTO?.userNo || '';
 
+        // 이미지 슬라이더 생성 부분
         const images = data.list && data.list.length > 0
-            ? data.list.map((fileDTO, index) => `
+            ? data.list.map((fileDTO) => `
                 <div class="post-carousel-slide">
                     <img src="/files/post/${fileDTO.fileName}" class="post-detail-img" onerror="this.src='/img/default_user.avif'">
                 </div>
             `).join('')
-            : `
-                <div class="post-carousel-slide">
-                    <img src="/img/default_user.avif" class="post-detail-img">
-                </div>
-            `;
+            : `<div class="post-carousel-slide"><img src="/img/default_user.avif" class="post-detail-img"></div>`;
 
         postSlideCount = data.list && data.list.length > 0 ? data.list.length : 1;
         postSlideIndex = 0;
+
         mImageArea.innerHTML = `
             <div class="post-gallery">
-                <button type="button" class="post-carousel-btn prev" id="postCarouselPrev" aria-label="Previous image">‹</button>
+                <button type="button" class="post-carousel-btn prev" id="postCarouselPrev">‹</button>
                 <div class="post-carousel-viewport">
                     <div class="post-carousel-track" id="postCarouselTrack">${images}</div>
                 </div>
-                <button type="button" class="post-carousel-btn next" id="postCarouselNext" aria-label="Next image">›</button>
+                <button type="button" class="post-carousel-btn next" id="postCarouselNext">›</button>
                 <div class="post-carousel-counter" id="postCarouselCounter"></div>
             </div>`;
 
+        // 정보창(mInfoArea) 구조 재구성: 상단 유저정보 + 중간 댓글리스트 + 하단 입력창
+        mInfoArea.innerHTML = `
+            <div class="p-3 border-bottom w-100">
+                <strong id="mOwner">${ownerName}</strong> 
+                <small id="mLocation" class="text-muted d-block">${data.feedLocation || ''}</small>
+            </div>
+            <div id="comment_scroll_area" style="flex-grow: 1; overflow-y: auto; width: 100%; padding: 15px;">
+                <div id="mContent" class="mb-3"><strong>${ownerName}</strong> ${data.feedContent || ''}</div>
+                <hr>
+                <div id="comment_display_list"></div> <!-- 댓글이 출력될 장소 -->
+            </div>
+            <div class="px-3 py-2 border-top d-flex gap-6 align-items-center">
+                <div class="action-item" style="cursor: pointer;" onclick="likePost('${feedNo}')">
+                    <i class="far fa-heart fa-lg"></i>
+                </div>
+                <div class="action-item" style="cursor: pointer;" onclick="sharePost('${feedNo}')">
+                    <i class="far fa-paper-plane fa-lg"></i>
+                </div>
+            </div>
+            <div class="p-3 border-top w-100">
+                <div class="input-group">
+                    <input type="text" id="comment_contents" class="form-control border-0" placeholder="댓글 달기...">
+                    <button class="btn btn-link text-decoration-none" type="button" id="comment_add_btn">게시</button>
+                </div>
+            </div>
+        `;
+
+        // 슬라이더 이벤트 연결
         const prevBtn = document.getElementById('postCarouselPrev');
         const nextBtn = document.getElementById('postCarouselNext');
         if (prevBtn) prevBtn.onclick = () => renderPostSlide(postSlideIndex - 1);
         if (nextBtn) nextBtn.onclick = () => renderPostSlide(postSlideIndex + 1);
         renderPostSlide(0);
 
-        mOwner.innerText = ownerName;
-        mLocation.innerText = data.feedLocation || '';
-        mContent.innerHTML = `<strong> ${ownerName}</strong> ${data.feedContent || ''}`;
-    } catch (e) { closeModal(); }
+        // 댓글 관련 로직 실행
+        getCommentList(feedNo);
+        bindCommentEvents(feedNo);
+
+    } catch (e) { 
+        console.error(e);
+        closeModal(); 
+    }
 }
 
 function closeModal() {
