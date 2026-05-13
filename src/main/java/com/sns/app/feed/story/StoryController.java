@@ -17,8 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.sns.app.feed.FeedDTO;
 import com.sns.app.file.FileDTO;
+import com.sns.app.member.MemberDTO;
 import com.sns.app.pager.Pager;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -42,14 +44,24 @@ public class StoryController {
 
 	// 2. 등록 폼 이동
 	@GetMapping("create")
-	public String create() throws Exception {
+	public String create(HttpSession session, Model model) throws Exception {
+		MemberDTO memberDTO = (MemberDTO)session.getAttribute("member");
+		if(memberDTO != null) {
+			model.addAttribute("userNo", memberDTO.getUserNo());
+		}
+		model.addAttribute("name", "story");
 		return "feed/create";
 	}
 
 	// 3. 등록 처리 
 	@PostMapping("create")
-	public String create(StoryDTO storyDTO, @RequestParam(value="attach", required = false) MultipartFile[] attach) throws Exception {
+	public String create(StoryDTO storyDTO, @RequestParam(value="attach", required=false) MultipartFile[] attach) throws Exception {
+		log.info("========== StoryController.create() ==========");
+		log.info("storyDTO.userNo: {}", storyDTO.getUserNo());
+		log.info("attach.length: {}", attach != null ? attach.length : 0);
+		log.info("===========================================");
 		int result = storyService.create(storyDTO, attach);
+		log.info("StoryController.create() - result: {}", result);
 
 		return "redirect:/feed/list";
 	}

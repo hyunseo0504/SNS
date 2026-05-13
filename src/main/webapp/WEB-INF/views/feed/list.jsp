@@ -23,13 +23,15 @@
 							<div class="story-wrapper">
 								<c:forEach items="${storyList}" var="s">
 									<div class="story-item"
-										onclick="openDetail('story', '${s.feedNo}')">
+										data-user-no="${s.userNo}"
+										data-feed-no="${s.feedNo}"
+										onclick="openDetail('story', '${s.feedNo}', '${s.userNo}')">
 										<div class="story-circle">
 											<img
-												src="${not empty s.list ? '/files/story/'.concat(s.list[0].fileName) : '/img/default_user.avif'}"
+												src="${not empty s.memberDTO.profileDTO and not empty s.memberDTO.profileDTO.fileName ? '/files/member/'.concat(s.memberDTO.profileDTO.fileName) : '/img/default_user.avif'}"
 												onerror="this.src='/img/default_user.avif'">
 										</div>
-										<small>User ${s.userNo}</small>
+										<small>${s.memberDTO.userNickname}</small>
 									</div>
 								</c:forEach>
 							</div>
@@ -49,7 +51,7 @@
 								<c:forEach items="${postList}" var="p">
 									<article class="post-card">
 										<div class="p-3">
-											<strong>User ${p.userNo}</strong>
+											<strong>${p.memberDTO.userNickname}</strong>
 										</div>
 
 										<div class="post-img-wrapper"
@@ -74,7 +76,7 @@
 											</div>
 										</div>
 										<div class="px-3 pb-3 pt-0">
-											<strong>User ${p.userNo}</strong> ${p.feedContent}
+											<strong>${p.memberDTO.userNickname}</strong> ${p.feedContent}
 										</div>
 									</article>
 								</c:forEach>
