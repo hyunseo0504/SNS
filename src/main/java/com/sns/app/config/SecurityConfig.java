@@ -43,6 +43,7 @@ public class SecurityConfig {
 			.csrf(csrf->{csrf.disable();})
 			.authorizeHttpRequests(auth->{
 				auth
+					.requestMatchers("/post/create").hasRole("USER")
 					.requestMatchers("/member/*").permitAll()
 					.anyRequest().permitAll()
 					;
@@ -70,6 +71,14 @@ public class SecurityConfig {
 					.maximumSessions(100)
 					.maxSessionsPreventsLogin(true)
 					.expiredUrl("/member/join")
+					;
+			})
+			.logout(logout->{
+				logout
+					.logoutUrl("/member/logout")
+					.logoutSuccessUrl("/member/login")
+					.invalidateHttpSession(true)
+					.deleteCookies("JESSIONID")
 					;
 			})
 			;
