@@ -22,8 +22,7 @@
 						<div class="col-lg-8">
 							<div class="story-wrapper">
 								<c:forEach items="${storyList}" var="s">
-									<div class="story-item"
-										data-user-no="${s.userNo}"
+									<div class="story-item" data-user-no="${s.userNo}"
 										data-feed-no="${s.feedNo}"
 										onclick="openDetail('story', '${s.feedNo}', '${s.userNo}')">
 										<div class="story-circle">
@@ -52,9 +51,11 @@
 									<article class="post-card">
 										<div class="p-3">
 											<strong>${p.memberDTO.userNickname}</strong>
-											<br>${p.feedLocation}
-										</div>
 
+											<div class="text-muted d-flex align-items-center gap-1">
+												<i class="fas fa-location-dot"></i> <span>${p.feedLocation}</span>
+											</div>
+										</div>
 										<div class="post-img-wrapper"
 											onclick="openDetail('post', '${p.feedNo}')">
 											<img
