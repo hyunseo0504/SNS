@@ -7,7 +7,14 @@
     <div class="d-flex mb-3 align-items-start">
         <div class="me-2">
             <strong style="font-size: 0.9rem;">
-                ${not empty c.memberDTO and not empty c.memberDTO.userNickname ? c.memberDTO.userNickname : 'user_'.concat(c.userNo)}
+                <c:choose>
+                    <c:when test="${not empty c.memberDTO and not empty c.memberDTO.userNickname}">
+                        ${c.memberDTO.userNickname}
+                    </c:when>
+                    <c:otherwise>
+                        user_${c.userNo}
+                    </c:otherwise>
+                </c:choose>
             </strong>
         </div>
         <div style="font-size: 0.9rem; flex: 1;">

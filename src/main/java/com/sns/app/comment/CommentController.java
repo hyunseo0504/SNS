@@ -20,7 +20,7 @@ public class CommentController {
 
     // 1. 댓글 리스트 가져오기 (JS의 getCommentList 대응)
     @GetMapping("list")
-    public String getCommentList(Long feedNo, Model model) throws Exception {
+    public String getCommentList(@org.springframework.web.bind.annotation.RequestParam("feedNo") Long feedNo, Model model) throws Exception {
         List<CommentDTO> list = commentService.getCommentList(feedNo);
         model.addAttribute("commentList", list);
         

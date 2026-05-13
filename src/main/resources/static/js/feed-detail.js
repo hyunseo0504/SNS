@@ -329,6 +329,14 @@ async function renderPost(feedNo) {
                 <hr>
                 <div id="comment_display_list"></div> <!-- 댓글이 출력될 장소 -->
             </div>
+            <div class="px-3 py-2 border-top d-flex gap-6 align-items-center">
+                <div class="action-item" style="cursor: pointer;" onclick="likePost('${feedNo}')">
+                    <i class="far fa-heart fa-lg"></i>
+                </div>
+                <div class="action-item" style="cursor: pointer;" onclick="sharePost('${feedNo}')">
+                    <i class="far fa-paper-plane fa-lg"></i>
+                </div>
+            </div>
             <div class="p-3 border-top w-100">
                 <div class="input-group">
                     <input type="text" id="comment_contents" class="form-control border-0" placeholder="댓글 달기...">
