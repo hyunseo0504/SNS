@@ -23,7 +23,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler{
 			if(s.equals("1")) {
 				Cookie cookie = new Cookie("rememberId", authentication.getName());
 				cookie.setMaxAge(60);
-				cookie.setPath("/Sfeed/list");
+				cookie.setPath("/feed/list");
 				response.addCookie(cookie);
  			} else {
  				throw new Exception();
