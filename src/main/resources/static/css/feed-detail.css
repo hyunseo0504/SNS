@@ -1,4 +1,3 @@
-
 /* --- 기본 레이아웃 (유지) --- */
 body {
 	background-color: #fafafa;
@@ -17,12 +16,20 @@ body {
 	scrollbar-width: none;
 }
 
+/* [추가/수정] 스토리 아이템 전체 정렬 */
+.story-item {
+	text-align: center; /* 텍스트 가운데 정렬 */
+	width: 75px;        /* 원형 너비에 맞춤 */
+	flex-shrink: 0;     /* 슬라이드 시 찌그러짐 방지 */
+}
+
 .story-circle {
 	width: 66px;
 	height: 66px;
 	border-radius: 50%;
 	padding: 3px;
 	background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+	margin: 0 auto 5px auto; /* [수정] 수평 중앙 정렬 및 아래 이름과 간격 */
 }
 
 .story-circle img {
@@ -33,6 +40,16 @@ body {
 	background: white;
 	border: 2px solid white;
 }
+
+/* [추가] 스토리 유저명 스타일 */
+.story-item small {
+	display: block;      /* 너비 적용을 위해 block 설정 */
+	width: 100%;
+	text-align: center;  /* 글자 가운데 정렬 */
+	font-size: 12px;
+	color: #262626;
+}
+
 /* 아이콘 버튼 스타일 */
 .action-item i {
 	color: #262626;
@@ -92,6 +109,24 @@ body {
 	object-fit: cover;
 }
 
+/* 인스타그램 스타일 댓글 레이아웃 */
+#mInfo {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 모달 높이에 맞춤 */
+}
+
+#comment_scroll_area {
+    flex: 1; /* 남은 공간 모두 차지 */
+    overflow-y: auto; /* 내용 많으면 스크롤 */
+}
+
+/* 입력창 포커스 시 테두리 제거 (선택) */
+#comment_contents:focus {
+    box-shadow: none;
+    outline: none;
+}
+
 /* --- 모달 공통 설정 --- */
 #detailModal {
 	display: none;
@@ -118,11 +153,9 @@ body {
 
 /* --- [핵심] 스토리 모드: 창 높이 80% 기준 슬림 세로형 --- */
 #detailModal.story-mode .modal-dialog {
-	/* Bootstrap의 가로 너비 강제 해제 */
 	width: auto !important;
 	max-width: none !important;
 	min-width: 0 !important;
-	/* [포인트] 현재 창 높이의 80% 고정 */
 	height: 80vh !important;
 	margin: 0 auto !important;
 	display: flex;
@@ -146,7 +179,6 @@ body {
 #detailModal.story-mode .story-frame {
 	position: relative;
 	height: 100%;
-	/* 높이에 맞춰 9:16 비율 자동 계산 */
 	aspect-ratio: 9/16 !important;
 	background: #000;
 	border-radius: 12px;
@@ -157,7 +189,7 @@ body {
 #detailModal.story-mode .story-frame img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover; /* 프레임에 꽉 차게 */
+	object-fit: cover; 
 }
 
 #detailModal.story-mode .story-user-label {
@@ -168,6 +200,96 @@ body {
 	color: #fff;
 	font-weight: bold;
 	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+#detailModal.story-mode .story-carousel {
+	position: relative;
+	width: auto;
+	max-width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 60px;
+	padding: 0 10px;
+	box-sizing: border-box;
+}
+
+#detailModal.story-mode .story-carousel-viewport {
+	width: auto;
+	flex: 0 0 auto;
+	height: 100%;
+	aspect-ratio: 9 / 16;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+#detailModal.story-mode .story-carousel-track {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	transition: transform 0.25s ease;
+}
+
+#detailModal.story-mode .story-carousel-slide {
+	flex: 0 0 100%;
+	max-width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#detailModal.story-mode .story-carousel-slide .story-frame {
+	width: 100%;
+	height: 100%;
+}
+
+#detailModal.story-mode .story-carousel-btn {
+	position: static;
+	transform: none;
+	width: 38px;
+	height: 38px;
+	border: none;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.18);
+	color: #fff;
+	font-size: 28px;
+	line-height: 1;
+	z-index: 2;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	backdrop-filter: blur(4px);
+	flex: 0 0 auto;
+}
+
+#detailModal.story-mode .story-carousel-btn.prev {
+	left: auto;
+}
+
+#detailModal.story-mode .story-carousel-btn.next {
+	right: auto;
+}
+
+#detailModal.story-mode .story-carousel-btn:disabled {
+	opacity: 0.35;
+	cursor: default;
+}
+
+#detailModal.story-mode .story-carousel-counter {
+	position: absolute;
+	left: 50%;
+	bottom: 12px;
+	transform: translateX(-50%);
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: rgba(0, 0, 0, 0.45);
+	color: #fff;
+	font-size: 12px;
+	z-index: 2;
+	backdrop-filter: blur(4px);
 }
 
 /* --- [기존 유지] 포스트 모드 --- */
@@ -191,12 +313,106 @@ body {
 	padding: 0;
 	display: flex;
 	align-items: center;
+	justify-content: center;
+	overflow: hidden;
 }
 
-#detailModal.post-mode #mImage img {
+
+#detailModal.post-mode .post-gallery {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center; /* 내부 요소들을 가로 중앙으로 정렬 */
 	width: 100%;
 	height: 100%;
-	object-fit: contain;
+	gap: 0; 
+	padding: 0 20px; /* 좌우 끝에 최소한의 여백 확보 */
+	box-sizing: border-box;
+}
+
+#detailModal.post-mode .post-carousel-viewport {
+	flex: 0 1 auto; 
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#detailModal.post-mode .post-carousel-track {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	transition: transform 0.25s ease;
+}
+
+#detailModal.post-mode .post-carousel-slide {
+	flex: 0 0 100%;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #000; /* 사진 뒤 검은 여백 */
+}
+
+#detailModal.post-mode .post-detail-img {
+	max-width: 100%;
+	max-height: 100%;
+	width: auto;
+	height: auto;
+	object-fit: contain; /* 비율 유지하며 검은 여백 안에 꽉 차게 */
+	display: block;
+}
+
+#detailModal.post-mode .post-carousel-btn {
+	/* 버튼이 사진 영역 위로 살짝 띄워지거나 바깥에 위치하도록 설정 */
+	width: 40px;
+	height: 40px;
+	border: none;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.2);
+	color: #fff;
+	font-size: 28px;
+	z-index: 10; /* 버튼이 이미지보다 위에 오도록 */
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	backdrop-filter: blur(4px);
+	flex: 0 0 auto;
+}
+
+#detailModal.post-mode .post-carousel-btn:hover {
+	background: rgba(255, 255, 255, 0.28);
+}
+
+#detailModal.post-mode .post-carousel-btn:disabled {
+	opacity: 0.35;
+	cursor: default;
+}
+
+#detailModal.post-mode .post-carousel-btn.prev {
+	margin-right: 15px;
+}
+
+#detailModal.post-mode .post-carousel-btn.next {
+	margin-left: 15px;
+}
+
+#detailModal.post-mode .post-carousel-counter {
+	position: absolute;
+	left: 50%;
+	bottom: 12px;
+	transform: translateX(-50%);
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: rgba(0, 0, 0, 0.45);
+	color: #fff;
+	font-size: 12px;
+	z-index: 2;
+	backdrop-filter: blur(4px);
 }
 
 #detailModal.post-mode .info-side {

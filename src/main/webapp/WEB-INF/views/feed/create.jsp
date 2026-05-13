@@ -27,7 +27,8 @@
                 <div class="container-fluid">
                     <div class="upload-container">
                         
-                        <form id="uploadForm" action="/${name}/create" method="post" enctype="multipart/form-data">
+                        <form id="uploadForm" action="/${name}/create" method="post" enctype="multipart/form-data" data-feed-type="${name}">
+                            <input type="hidden" name="userNo" value="${userNo}">
                             <div class="card card-upload shadow-sm ${name eq 'story' ? 'theme-story' : 'theme-post'}">
                                 
                                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
@@ -46,7 +47,14 @@
                                     </div>
                                     <!-- 이미지가 삽입될 곳 -->
                                 </div>
-                                <input type="file" name="attach" id="fileInput" class="d-none" accept="image/*" required>
+                                <input type="file" name="attach" id="fileInput" class="d-none" accept="image/*" <c:if test="${name eq 'post'}">multiple</c:if> required>
+                                <c:if test="${name eq 'post'}">
+                                    <div class="px-3 pt-3 pb-0">
+                                        <button type="button" id="orderToggleBtn" class="btn btn-outline-primary btn-sm w-100 d-none">
+                                            순서 변경
+                                        </button>
+                                    </div>
+                                </c:if>
 
                                 <div class="card-body">
                                     <c:choose>
@@ -86,6 +94,28 @@
     </div>
 
     <c:import url="/WEB-INF/views/temp/footer_script.jsp"></c:import>
+
+    <c:if test="${name eq 'post'}">
+        <div id="orderModal" class="order-modal d-none">
+            <div class="order-modal-backdrop" data-order-close></div>
+            <div class="order-modal-panel" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+                <div class="order-modal-header">
+                    <div>
+                        <div id="orderModalTitle" class="order-modal-title">사진 순서 변경</div>
+                        <div class="order-modal-subtitle">사진을 드래그해서 순서를 바꾸세요.</div>
+                    </div>
+                    <button type="button" class="order-modal-close" data-order-close>&times;</button>
+                </div>
+                <div class="order-modal-body">
+                    <div id="orderDropList" class="order-drop-list"></div>
+                </div>
+                <div class="order-modal-footer">
+                    <button type="button" id="orderModalCancel" class="btn btn-light">취소</button>
+                    <button type="button" id="orderModalApply" class="btn btn-primary">적용</button>
+                </div>
+            </div>
+        </div>
+    </c:if>
 
     <script src="/js/feed-create.js"></script>
 

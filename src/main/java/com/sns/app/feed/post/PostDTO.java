@@ -13,9 +13,6 @@ public class PostDTO extends FeedDTO {
 	
 	private String feedLocation;
 	private String feedContent;
-	private Long feedRef;
-	private Long feedStep;
-	private Long feedDepth;
-
+	
 	
 }

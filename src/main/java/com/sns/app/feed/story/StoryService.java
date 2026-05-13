@@ -30,7 +30,10 @@ public class StoryService implements FeedService {
 	@Override
 	public List<FeedDTO> list(Pager pager) throws Exception {
 
-		pager.makePageNum(storyMapper.getCount(pager));
+		Long totalCount = storyMapper.getCount(pager);
+		pager.setPage(1L);
+		pager.setPerPage(totalCount);
+		pager.makePageNum(totalCount);
 		pager.makeStartNum();
 
 		return storyMapper.list(pager);
@@ -91,6 +94,12 @@ public class StoryService implements FeedService {
 	@Override
 	public FeedDTO detail(FeedDTO feedDTO) throws Exception {
 		return storyMapper.detail(feedDTO);
+	}
+
+	public List<FeedDTO> listByUser(Long userNo) throws Exception {
+		FeedDTO feedDTO = new FeedDTO();
+		feedDTO.setUserNo(userNo);
+		return storyMapper.listByUser(feedDTO);
 	}
 
 	@Override

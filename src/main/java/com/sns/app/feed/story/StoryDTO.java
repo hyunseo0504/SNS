@@ -1,6 +1,7 @@
 package com.sns.app.feed.story;
 
 import com.sns.app.feed.FeedDTO;
+import com.sns.app.member.MemberDTO;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,6 @@ import lombok.ToString;
 @Getter
 @ToString
 public class StoryDTO extends FeedDTO{
-	
 
 	
 }

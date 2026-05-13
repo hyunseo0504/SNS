@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sns.app.comment.CommentMapper">
+	<select id="getCommentList" parameterType="Long" resultMap="commentResult">
+		SELECT
+			C.*,
+			U."USER_NO",
+			U."USER_NICKNAME"
+		FROM "COMMENT" C
+		LEFT JOIN "USER" U ON C."USER_NO" = U."USER_NO"
+		WHERE C."FEED_NO" = #{feedNo}
+		ORDER BY C."COMMENT_NO" ASC
+	</select>
+
+	<resultMap type="CommentDTO" id="commentResult">
+		<id column="COMMENT_NO" property="commentNo" />
+		<result column="FEED_NO" property="feedNo" />
+		<result column="USER_NO" property="userNo" />
+		<result column="COMMENT_CONTENT" property="commentContent" />
+		<result column="COMMENT_THUMB" property="commentThumb" />
+		<result column="COMMENT_DATE" property="commentDate" />
+		<result column="COMMENT_REF" property="commentRef" />
+		<result column="COMMENT_STEP" property="commentStep" />
+		<result column="COMMENT_DEPTH" property="commentDepth" />
+		<association property="memberDTO" javaType="com.sns.app.member.MemberDTO">
+			<id column="USER_NO" property="userNo" />
+			<result column="USER_NICKNAME" property="userNickname" />
+		</association>
+	</resultMap>
+
+	<insert id="setCommentCreate" parameterType="CommentDTO" useGeneratedKeys="true" keyProperty="commentNo">
+		INSERT INTO "COMMENT"
+		(
+			"FEED_NO",
+			"USER_NO",
+			"COMMENT_CONTENT",
+			"COMMENT_THUMB",
+			"COMMENT_DATE",
+			"COMMENT_REF",
+			"COMMENT_STEP",
+			"COMMENT_DEPTH"
+		)
+		VALUES
+		(
+			#{feedNo},
+			#{userNo},
+			#{commentContent},
+			#{commentThumb},
+			now(),
+			#{commentRef},
+			#{commentStep},
+			#{commentDepth}
+		)
+	</insert>
+
+</mapper>

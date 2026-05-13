@@ -13,24 +13,49 @@
 		SELECT
 		P.*,
 		PI."FILE_NO", PI."FILE_NAME", PI."ORI_NAME",
-		S."USER_NICKNAME" FROM "POST" P
-		LEFT JOIN "POST_IMG" PI ON P."FEED_NO" = PI."FEED_NO"
-		LEFT JOIN "USER" S ON P."USER_NO" = S."USER_NO" 
-		ORDER BY P."FEED_DATE" DESC
+		S."USER_NICKNAME",
+		UR."ROLE_NO",
+		R."ROLE_NAME"
+		FROM
+		(
+		SELECT P0.*
+		FROM "POST" P0
+		ORDER BY
+		P0."FEED_DATE" DESC
 		LIMIT #{perPage} OFFSET #{startNum}
+		) P
+		LEFT JOIN
+		"POST_IMG" PI ON P."FEED_NO" = PI."FEED_NO"
+		LEFT JOIN "USER" S ON
+		P."USER_NO" = S."USER_NO"
+		LEFT JOIN "USER_ROLE" UR ON S."USER_NO" =
+		UR."USER_NO"
+		LEFT JOIN "ROLE" R ON UR."ROLE_NO" = R."ROLE_NO"
+		ORDER BY
+		P."FEED_DATE" DESC, PI."FILE_NO" ASC
 	</select>
 
 	<select id="detail" parameterType="PostDTO"
 		resultMap="detailResult">
-		SELECT *
+		SELECT
+		P.*,
+		PI."FILE_NO", PI."FILE_NAME", PI."ORI_NAME",
+		S."USER_NICKNAME",
+		UR."ROLE_NO",
+		R."ROLE_NAME"
 		FROM "POST" P
 		LEFT JOIN
-		"POST_IMG" PI
-		USING ("FEED_NO")
-		WHERE "FEED_NO"=#{feedNo}
-
+		"POST_IMG" PI ON P."FEED_NO" = PI."FEED_NO"
+		LEFT JOIN "USER" S ON
+		P."USER_NO" = S."USER_NO"
+		LEFT JOIN "USER_ROLE" UR ON S."USER_NO" =
+		UR."USER_NO"
+		LEFT JOIN "ROLE" R ON UR."ROLE_NO" = R."ROLE_NO"
+		WHERE
+		P."FEED_NO" = #{feedNo}
+		ORDER BY PI."FILE_NO" ASC
 	</select>
-	
+
 
 	<resultMap type="PostDTO" id="detailResult">
 		<id column="FEED_NO" property="feedNo" />
@@ -38,25 +63,33 @@
 		<result column="FEED_LOCATION" property="feedLocation" />
 		<result column="FEED_CONTENT" property="feedContent" />
 		<result column="FEED_THUMB" property="feedThumb" />
-		<result column="FEED_REF" property="feedRef" />
-		<result column="FEED_STEP" property="feedStep" />
-		<result column="FEED_DEPTH" property="feedDepth" />
 		<result column="USER_NO" property="userNo" />
+
+		<association property="memberDTO" javaType="MemberDTO">
+			<result column="USER_NO" property="userNo" />
+			<result column="USER_NICKNAME" property="userNickname" />
+
+			<collection property="roles" javaType="java.util.List"
+				ofType="RoleDTO">
+				<id column="ROLE_NO" property="roleNo" />
+				<result column="ROLE_NAME" property="roleName" />
+			</collection>
+		</association>
+
 		<collection property="list" javaType="java.util.List"
 			ofType="PostFileDTO">
-			<id column="FILE_NUM" property="fileNum" />
+			<id column="FILE_NO" property="fileNo" />
 			<result column="FILE_NAME" property="fileName" />
 			<result column="ORI_NAME" property="oriName" />
 		</collection>
-
 	</resultMap>
+
 	<insert id="create" parameterType="PostDTO"
 		useGeneratedKeys="true" keyProperty="feedNo">
 		INSERT INTO "POST"
-		("FEED_NO","FEED_DATE","FEED_LOCATION","FEED_CONTENT","FEED_THUMB","FEED_REF","FEED_STEP","FEED_DEPTH","USER_NO")
-		VALUES (default,
-		now(), #{feedLocation}, #{feedContent},
-		#{feedThumb},0,0,0,#{userNo})
+		("FEED_DATE","FEED_LOCATION","FEED_CONTENT","FEED_THUMB","USER_NO")
+		VALUES
+		(now(),#{feedLocation},#{feedContent},#{feedThumb},#{userNo})
 	</insert>
 	<insert id="createFile" parameterType="PostFileDTO">
 		INSERT INTO "POST_IMG"

@@ -27,7 +27,7 @@ public class FeedController {
 	@GetMapping("list")
 	public String list(Pager pager, Model model) throws Exception {
 
-		List<FeedDTO> storyList = storyService.list(pager);
+		List<FeedDTO> storyList = storyService.list(new Pager());
 		List<FeedDTO> postList = postService.list(pager);
 
 		model.addAttribute("storyList", storyList);
@@ -53,5 +53,11 @@ public class FeedController {
 		}
 
 		throw new IllegalArgumentException("Unsupported feed type: " + type);
+	}
+
+	@GetMapping("/detail/story/user/{userNo}")
+	@ResponseBody
+	public List<FeedDTO> getStoryListByUser(@PathVariable("userNo") Long userNo) throws Exception {
+		return storyService.listByUser(userNo);
 	}
 }

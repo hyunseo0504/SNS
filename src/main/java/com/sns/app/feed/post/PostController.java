@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sns.app.feed.FeedDTO;
 import com.sns.app.feed.FeedService;
 import com.sns.app.file.FileDTO;
+import com.sns.app.member.MemberDTO;
 import com.sns.app.pager.Pager;
 
 import lombok.extern.slf4j.Slf4j;
@@ -54,11 +56,15 @@ public class PostController {
 		return "feed/create";
 	}
 
-	// 등록 처리
 	@PostMapping("create")
-	public String create(PostDTO postDTO, @RequestParam("attach") MultipartFile[] attach) throws Exception {
-		int result = postService.create(postDTO, attach);
-		return "redirect:/feed/list";
+	public String create(PostDTO postDTO,
+	                     @RequestParam("attach") MultipartFile[] attach,
+	                     @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+
+	    postDTO.setUserNo(memberDTO.getUserNo());
+
+	    int result = postService.create(postDTO, attach);
+	    return "redirect:/feed/list";
 	}
 
 	// 피드 수정 폼 이동
