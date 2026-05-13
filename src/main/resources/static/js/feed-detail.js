@@ -329,7 +329,7 @@ async function renderPost(feedNo) {
                 <hr>
                 <div id="comment_display_list"></div> <!-- 댓글이 출력될 장소 -->
             </div>
-            <div class="px-3 py-2 border-top d-flex gap-6 align-items-center">
+            <div class="px-3 py-2 border-top d-flex align-items-center" style="gap: 20px;">
                 <div class="action-item" style="cursor: pointer;" onclick="likePost('${feedNo}')">
                     <i class="far fa-heart fa-lg"></i>
                 </div>
