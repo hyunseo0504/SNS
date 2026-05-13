@@ -43,7 +43,7 @@ public class SecurityConfig {
 			.csrf(csrf->{csrf.disable();})
 			.authorizeHttpRequests(auth->{
 				auth
-					.requestMatchers("/post/create").hasRole("USER")
+					
 					.requestMatchers("/member/*").permitAll()
 					.anyRequest().permitAll()
 					;
