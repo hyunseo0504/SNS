@@ -15,12 +15,15 @@ function getCommentList(feedNo) {
     const listArea = document.getElementById("comment_display_list");
     if (!listArea) return;
 
-    fetch(`/feed/comment/list?feedNo=${feedNo}`)
+    fetch(`/comment/list?feedNo=${feedNo}`)
         .then(r => r.text())
         .then(r => {
             listArea.innerHTML = r.trim();
         })
         .catch(e => console.error("댓글 로딩 실패:", e));
+		
+	
+		
 }
 
 function bindCommentEvents(feedNo) {
@@ -28,6 +31,8 @@ function bindCommentEvents(feedNo) {
     const commentInput = document.getElementById("comment_contents");
 
     if (!commentBtn) return;
+
+    if (commentBtn.disabled) return;
 
     commentBtn.onclick = () => {
         const content = commentInput.value.trim();
@@ -37,12 +42,24 @@ function bindCommentEvents(feedNo) {
         p.append("commentContent", content);
         p.append("feedNo", feedNo);
 
-        fetch("/feed/comment/create", {
+        fetch("/comment/create", {
             method: "POST",
+            credentials: 'same-origin',
             body: p
         })
         .then(r => r.text())
         .then(r => {
+			
+			console.log("댓글 등록 응답:", r);
+			
+            if (!r) return;
+
+            if (r.trim() === "-1") {
+                alert("로그인 후 댓글을 작성할 수 있습니다.");
+                location.href = "/member/login";
+                return;
+            }
+
             if (r.trim() > 0) {
                 commentInput.value = "";
                 getCommentList(feedNo); // 등록 후 리스트 새로고침
