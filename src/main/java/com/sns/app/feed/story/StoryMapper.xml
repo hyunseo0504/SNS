@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sns.app.feed.story.StoryMapper">
+	<select id="getCount" resultType="Long" parameterType="Pager">
+		SELECT
+		COUNT("FEED_NO") FROM "STORY"
+	</select>
+
+	<select id="list" resultMap="detailResult" parameterType="Pager">
+		SELECT
+		S.*,
+		SI."FILE_NO", SI."FILE_NAME", SI."ORI_NAME" FROM "STORY" S
+		LEFT OUTER JOIN "STORY_IMG" SI ON S."FEED_NO" = SI."FEED_NO"
+		ORDER BY S."FEED_DATE" DESC
+		LIMIT #{perPage} OFFSET #{startNum}
+	</select>
+
+	<select id="detail" parameterType="StoryDTO" resultMap="detailResult">
+		SELECT
+		S.*,
+		SI."FILE_NO", SI."FILE_NAME", SI."ORI_NAME" FROM "STORY" S
+		LEFT OUTER JOIN "STORY_IMG" SI ON S."FEED_NO" = SI."FEED_NO"
+		WHERE S."FEED_NO" = #{feedNo}
+	</select>
+
+	<resultMap type="StoryDTO" id="detailResult">
+		<id column="FEED_NO" property="feedNo" />
+		<result column="FEED_DATE" property="feedDate" />
+		<result column="USER_NO" property="userNo" />
+		<result column="FEED_THUMB" property="feedThumb" />
+		<collection property="list" javaType="java.util.List"
+			ofType="StoryFileDTO">
+			<id column="FILE_NUM" property="fileNum" />
+			<result column="FILE_NAME" property="fileName" />
+			<result column="ORI_NAME" property="oriName" />
+		</collection>
+	</resultMap>
+
+	<insert id="create" parameterType="StoryDTO"
+		useGeneratedKeys="true" keyProperty="feedNo">
+		INSERT INTO "STORY"
+		VALUES
+		(default,
+		now(), #{userNo},#{feedThumb})
+	</insert>
+	<insert id="createFile" parameterType="StoryFileDTO">
+		INSERT INTO "STORY_IMG"
+		VALUES (DEFAULT,#{fileName}, #{oriName}, #{feedNo})
+	</insert>
+	<delete id="delete" parameterType="StoryDTO">
+		DELETE FROM "STORY"
+		WHERE
+		"FEED_NO"=#{feedNo}
+	</delete>
+	<delete id="fileDelete" parameterType="StoryDTO">
+		DELETE FROM "STORY_IMG"
+		WHERE "FILE_NO"=#{fileNo}
+	</delete>
+
+	<delete id="fileDeleteFor" parameterType="java.util.List">
+		DELETE FROM "STORY_IMG"
+		WHERE "FILE_NO" IN
+		<foreach item="item" index="index" collection="list" open="("
+			separator="," close=")">
+			#{item.fileNo}
+		</foreach>
+
+	</delete>
+
+	<select id="fileDetail" parameterType="FileDTO"
+		resultType="FileDTO">
+		SELECT * FROM "STORY_IMG"
+		WHERE "FILE_NO"=#{fileNo}
+	</select>
+
+
+
+
+
+</mapper>	
