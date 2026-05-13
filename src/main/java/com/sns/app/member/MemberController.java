@@ -45,7 +45,7 @@ public class MemberController {
 			s = memberServiceImpl.detail(s);
 			session.setAttribute("member", s);
 		}
-		return "rediect:/";
+		return "redirect:/feed/list";
 	}
 	
 	@GetMapping("join")
@@ -58,7 +58,7 @@ public class MemberController {
 		}
 		int result = memberServiceImpl.join(memberDTO, attach);
 		
-		return "redirect:/feed/list";
+		return "redirect:/member/login";
 	}
 	
 	@GetMapping("idCheck")

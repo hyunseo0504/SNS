@@ -18,7 +18,7 @@
   	WHERE "USER_ID"=#{username}
   </update>
   
-  <insert id="join" parameterType="MemberDTO">
+  <insert id="join" parameterType="MemberDTO" useGeneratedKeys="true" keyProperty="userNo">
   	INSERT INTO "USER"
   	VALUES (
   		default,
@@ -49,7 +49,7 @@
   		USING ("USER_NO")
   		LEFT JOIN "ROLE" r
   		USING("ROLE_NO")
-  	WHERE u."USER_ID"=#{userId}
+  	WHERE u."USER_ID"=#{username}
   </select>
   
   <resultMap type="MemberDTO" id="detailResult">
@@ -65,7 +65,7 @@
   	<result column="ACCOUNT_NON_LOCKED" property="accountNonLocked"/>
   	<result column="ACCOUNT_NON_EXPIRED" property="accountNonExpired"/>
   	
-  	<association property="profileDTO" javaType="ProfileDTO">
+  	<association property="profileDTO" javaType="profileDTO">
   		<id column="FILE_NO" property="fileNo"/>
   		<result column="FILE_NAME" property="fileName"/>
   		<result column="ORI_NAME" property="oriName"/>
