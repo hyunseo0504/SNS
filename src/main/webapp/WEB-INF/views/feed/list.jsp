@@ -7,34 +7,33 @@
 <head>
 <meta charset="UTF-8">
 <title>SNS Feed</title>
-
 <c:import url="/WEB-INF/views/temp/head_css.jsp"></c:import>
 
 <style>
+/* --- 기본 레이아웃 (유지) --- */
+body {
+	background-color: #fafafa;
+	margin: 0;
+}
+
 .story-wrapper {
 	display: flex;
 	overflow-x: auto;
 	padding: 20px 10px;
 	gap: 20px;
-	background-color: #fafafa;
+	background-color: #fff;
 	border: 1px solid #dbdbdb;
 	border-radius: 8px;
 	margin-bottom: 30px;
 	scrollbar-width: none;
 }
 
-.story-item {
-	text-align: center;
-}
-
 .story-circle {
-	width: 75px;
-	height: 75px;
+	width: 66px;
+	height: 66px;
 	border-radius: 50%;
 	padding: 3px;
-	background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%
-		, #bc1888 100%);
-	cursor: pointer;
+	background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
 }
 
 .story-circle img {
@@ -45,453 +44,282 @@
 	background: white;
 	border: 2px solid white;
 }
+/* 아이콘 버튼 스타일 */
+.action-item i {
+	color: #262626;
+	transition: transform 0.1s ease;
+}
+
+.action-item:hover i {
+	color: #8e8e8e;
+}
+
+/* 좋아요 활성화 상태(빨간 하트) */
+.action-item i.fas.fa-heart {
+	color: #ed4956;
+}
+
+/* 아이콘 클릭 시 살짝 커지는 효과 */
+.action-item:active {
+	transform: scale(1.1);
+}
+/* 아이콘들 사이의 간격을 더 넓게 설정 */
+.post-card .d-flex.gap-5 {
+    gap: 1.5rem !important; /* 부트스트랩 기본값보다 더 넓게 */
+}
+
+/* 또는 개별 아이콘에 여백 추가 */
+.action-item {
+    padding-right: 5px; /* 아이콘 오른쪽 간격 추가 */
+}
+
+.action-item i {
+    font-size: 1.5rem; /* 아이콘 크기가 작아 보인다면 살짝 키우는 것도 방법입니다 */
+}
 
 .post-container {
-	max-width: 600px;
+	max-width: 470px;
 	margin: 0 auto;
 }
 
 .post-card {
 	background: #fff;
 	border: 1px solid #dbdbdb;
-	border-radius: 14px;
+	border-radius: 8px;
 	margin-bottom: 25px;
 	overflow: hidden;
-	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
 }
 
 .post-img-wrapper {
 	width: 100%;
-	aspect-ratio: 1 / 1; /* 1:1 정사각형 틀 고정 */
-	overflow: hidden;
-	background-color: #111;
+	aspect-ratio: 1/1;
 	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	background: #111;
 }
 
 .post-img {
 	width: 100%;
 	height: 100%;
-	/* 이미 Create에서 1:1로 잘랐기 때문에 cover를 쓰면 
-	   미세한 여백 없이 꽉 찬 완벽한 정사각형 피드가 됩니다. */
-	object-fit: cover; 
-	display: block;
+	object-fit: cover;
 }
 
-.post-content {
-	padding: 16px;
-}
-
-#mImage img {
+/* --- 모달 공통 설정 --- */
+#detailModal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
 	width: 100%;
-	max-height: 600px;
-	object-fit: contain;
-	background: #000;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.9);
+	z-index: 9999;
+	align-items: center;
+	justify-content: center;
 }
 
-#detailModal.story-mode {
-    display: flex !important; /* block 대신 flex 사용 */
-    align-items: center;      /* 세로 중앙 */
-    justify-content: center;   /* 가로 중앙 */
-    padding: 12px;
+.close-btn {
+	position: absolute;
+	top: 20px;
+	right: 25px;
+	color: #fff;
+	font-size: 35px;
+	cursor: pointer;
+	z-index: 10001;
 }
 
+/* --- [핵심] 스토리 모드: 창 높이 80% 기준 슬림 세로형 --- */
 #detailModal.story-mode .modal-dialog {
-    /* 기존의 position: fixed, top, left, transform 등 복잡한 설정 제거 */
-    width: 100%;
-    max-width: 420px; 
-    margin: 0 auto; /* 가로 중앙 정렬 보조 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#detailModal.story-mode .modal-content {
-    background: transparent;
-    box-shadow: none;
-    border: none;
-    width: 100%; /* 너비 확보 */
-}
-#detailModal.story-mode .modal-body,
-#detailModal.story-mode .row,
-#detailModal.story-mode .col-12 {
-	height: auto;
-}
-
-#detailModal.story-mode #mImage {
-	width: 100%;
-	padding: 0;
-	background: transparent;
+	/* Bootstrap의 가로 너비 강제 해제 */
+	width: auto !important;
+	max-width: none !important;
+	min-width: 0 !important;
+	/* [포인트] 현재 창 높이의 80% 고정 */
+	height: 80vh !important;
+	margin: 0 auto !important;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+#detailModal.story-mode .modal-content {
+	background: transparent !important;
+	border: none !important;
+	height: 100% !important;
+	width: auto !important;
+}
+
+#detailModal.story-mode .modal-body {
+	padding: 0 !important;
+	height: 100% !important;
+	width: auto !important;
 }
 
 #detailModal.story-mode .story-frame {
 	position: relative;
-	width: 100%;
-	max-width: 100%;
-	aspect-ratio: 9 / 16;
+	height: 100%;
+	/* 높이에 맞춰 9:16 비율 자동 계산 */
+	aspect-ratio: 9/16 !important;
 	background: #000;
+	border-radius: 12px;
 	overflow: hidden;
-	border-radius: 16px;
+	box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
 #detailModal.story-mode .story-frame img {
-	position: absolute;
-	inset: 0;
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
-	object-position: center center;
-	display: block;
+	object-fit: cover; /* 프레임에 꽉 차게 */
 }
 
 #detailModal.story-mode .story-user-label {
 	position: absolute;
-	top: 14px;
-	left: 14px;
-	z-index: 2;
-	padding: 8px 12px;
-	border-radius: 999px;
-	background: rgba(0, 0, 0, 0.45);
+	top: 15px;
+	left: 15px;
+	z-index: 10;
 	color: #fff;
-	backdrop-filter: blur(6px);
-	font-size: 14px;
-	line-height: 1;
+	font-weight: bold;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
-@media (max-width: 767.98px) {
-	#detailModal.story-mode .modal-dialog {
-		width: calc(100vw - 16px);
-	}
-
-	#detailModal.story-mode {
-		padding: 8px;
-	}
-
-	#detailModal.story-mode .story-frame {
-		border-radius: 14px;
-	}
-}
-
-#detailModal .modal-dialog {
-	width: min(980px, calc(100vw - 32px));
-	max-width: 980px;
-	height: min(84vh, 760px);
-	margin: 0 auto;
-}
-
+/* --- [기존 유지] 포스트 모드 --- */
 #detailModal.post-mode .modal-dialog {
-	width: min(1040px, calc(100vw - 24px));
-	max-width: 1040px;
-	height: min(84vh, 760px);
+	width: 90% !important;
+	max-width: 1100px !important;
+	height: 80vh !important;
+	margin: 0 auto !important;
 }
 
 #detailModal.post-mode .modal-content {
-	border-radius: 14px;
-	overflow: hidden;
+	height: 100%;
 	background: #fff;
+	border-radius: 4px;
+	overflow: hidden;
 }
 
 #detailModal.post-mode #mImage {
+	height: 100%;
 	background: #000;
+	padding: 0;
 	display: flex;
 	align-items: center;
-	justify-content: center;
 }
 
 #detailModal.post-mode #mImage img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
-	object-position: center center;
+	object-fit: contain;
 }
 
-#detailModal.post-mode .col-md-5 {
-	border-left: 1px solid #efefef;
-	background: #fff;
-}
-
-#detailModal.post-mode #mLocation {
-	min-height: 20px;
-	font-size: 12px;
-	color: #8e8e8e;
-	margin-bottom: 14px;
-	padding-bottom: 10px;
-	border-bottom: 1px solid #f0f0f0;
-}
-
-#detailModal.post-mode #mContent {
-	flex: 1;
-	overflow-y: auto;
-	line-height: 1.55;
-	font-size: 14px;
-	color: #222;
-}
-
-#detailModal.post-mode .post-detail-owner {
-	font-size: 15px;
-	margin-bottom: 8px;
-}
-
-#detailModal.post-mode .post-detail-text {
-	white-space: normal;
-	word-break: break-word;
-}
-
-#detailModal .modal-content {
-	height: 100%;
-	border: 0;
-	border-radius: 18px;
-	overflow: hidden;
-	background: #fff;
-}
-
-#detailModal .modal-body {
-	height: 100%;
-}
-
-#detailModal .row {
-	height: 100%;
-}
-
-#detailModal #mImage {
-	height: 100%;
-	background: #000;
-}
-
-#detailModal #mImage img {
-	width: 100%;
-	height: 100%;
-	max-height: none;
-	object-fit: cover;
-	display: block;
-}
-
-#detailModal .col-md-5 {
+#detailModal.post-mode .info-side {
 	display: flex;
 	flex-direction: column;
-	overflow: hidden;
+	border-left: 1px solid #efefef;
+	height: 100%;
+	background: #fff;
 }
 
-#detailModal #mContent {
+.modal-header-custom {
+	padding: 15px;
+	border-bottom: 1px solid #efefef;
+}
+
+.modal-body-custom {
+	padding: 15px;
+	flex-grow: 1;
 	overflow-y: auto;
-	padding-right: 4px;
-}
-
-@media (max-width: 767.98px) {
-	#detailModal .modal-dialog {
-		width: calc(100vw - 20px);
-		height: auto;
-		max-width: none;
-	}
-
-	#detailModal .modal-content,
-	#detailModal .modal-body,
-	#detailModal .row {
-		height: auto;
-	}
-
-	#detailModal .row {
-		flex-direction: column;
-	}
-
-	#detailModal #mImage {
-		height: 58vh;
-	}
-
-	#detailModal #mImage img {
-		height: 100%;
-		object-fit: cover;
-	}
-
-	#detailModal .col-md-5 {
-		max-height: 42vh;
-	}
-
-	#detailModal.post-mode .modal-dialog {
-		width: calc(100vw - 16px);
-		height: auto;
-	}
-
-	#detailModal.post-mode #mImage {
-		height: 56vh;
-	}
-
-	#detailModal.post-mode .col-md-5 {
-		max-height: 36vh;
-	}
+	font-size: 14px;
 }
 </style>
 </head>
 
-<body id="page-top">
-
+<body>
 	<div id="wrapper">
-
 		<c:import url="/WEB-INF/views/temp/sidebar.jsp"></c:import>
-
 		<div id="content-wrapper" class="d-flex flex-column">
-
 			<div id="content">
-
 				<c:import url="/WEB-INF/views/temp/topbar.jsp"></c:import>
-
 				<div class="container-fluid">
-
 					<div class="row justify-content-center">
-
-						<div class="col-lg-8 col-md-10">
-
-							<!-- STORY -->
+						<div class="col-lg-8">
 							<div class="story-wrapper">
-
 								<c:forEach items="${storyList}" var="s">
-
-									<div class="story-item">
-
-										<div class="story-circle"
-											onclick="openDetail('story', '${s.feedNo}')">
-
-											<c:choose>
-
-												<c:when
-													test="${not empty s.list and not empty s.list[0].fileName}">
-
-													<img src="/files/story/${s.list[0].fileName}"
-														onerror="this.src='/img/default_user.avif'">
-
-												</c:when>
-
-												<c:otherwise>
-
-													<img src="/img/default_user.avif">
-
-												</c:otherwise>
-
-											</c:choose>
-
+									<div class="story-item"
+										onclick="openDetail('story', '${s.feedNo}')">
+										<div class="story-circle">
+											<img
+												src="${not empty s.list ? '/files/story/'.concat(s.list[0].fileName) : '/img/default_user.avif'}"
+												onerror="this.src='/img/default_user.avif'">
 										</div>
-
-										<small class="text-truncate d-block" style="width: 75px;">
-											User ${s.userNo} </small>
-
+										<small>User ${s.userNo}</small>
 									</div>
-
 								</c:forEach>
-
 							</div>
-							<div class="d-flex justify-content-between gap-2 mb-4">
-								<button type="button" class="btn btn-primary w-100 py-2 fw-bold"
-									onclick="location.href='/post/create'">
-									<i class="fas fa-plus-circle me-2"></i>포스트 만들기
-								</button>
-								<button type="button"
-									class="btn btn-outline-danger w-100 py-2 fw-bold"
-									onclick="location.href='/story/create'">
-									<i class="fas fa-history me-2"></i>스토리 추가
-								</button>
-							</div>
-
-							<!-- POST -->
+							
 							<div class="post-container">
-
 								<c:forEach items="${postList}" var="p">
-
 									<article class="post-card">
-
-										<div class="post-header p-3">
+										<div class="p-3">
 											<strong>User ${p.userNo}</strong>
-
 										</div>
 
 										<div class="post-img-wrapper"
 											onclick="openDetail('post', '${p.feedNo}')">
-											<c:choose>
-												<c:when test="${not empty p.list and not empty p.list[0].fileName}">
-													<img src="/files/post/${p.list[0].fileName}" class="post-img">
-												</c:when>
-												<c:otherwise>
-													<img src="/img/default_user.avif" class="post-img">
-												</c:otherwise>
-											</c:choose>
-
+											<img
+												src="${not empty p.list ? '/files/post/'.concat(p.list[0].fileName) : '/img/default_user.avif'}"
+												class="post-img">
 										</div>
 
-										<div class="post-content">
-
-											<c:if test="${not empty p.feedLocation}">
-												<div class="location">
-													<i class="fas fa-map-marker-alt"></i> ${p.feedLocation}
-												</div>
-											</c:if>
-
-											<div class="text">
-												<strong>User ${p.userNo}</strong> <br>${p.feedContent}
+										<div class="p-3 pb-0 d-flex gap-5">
+											<div class="action-item" style="cursor: pointer;"
+												onclick="likePost('${p.feedNo}')">
+												<i class="far fa-heart fa-lg"></i>
 											</div>
-
+											<div class="action-item" style="cursor: pointer;"
+												onclick="openDetail('post', '${p.feedNo}')">
+												<i class="far fa-comment fa-lg"></i>
+											</div>
+											<div class="action-item" style="cursor: pointer;"
+												onclick="sharePost('${p.feedNo}')">
+												<i class="far fa-paper-plane fa-lg"></i>
+											</div>
 										</div>
-
+										<div class="px-3 pb-3 pt-0">
+											<strong>User ${p.userNo}</strong> ${p.feedContent}
+										</div>
 									</article>
-
 								</c:forEach>
 
 							</div>
-
 						</div>
-
 					</div>
-
 				</div>
-
 			</div>
-
 		</div>
-
 	</div>
 
-	<!-- MODAL -->
-<div id="detailModal" class="modal" tabindex="-1"
-    style="display: none; background: rgba(0, 0, 0, 0.9); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;">
-
-    <div class="modal-dialog modal-dialog-centered"> <!-- 클래스 단순화 -->
-        <div class="modal-content">
-            <div class="modal-body p-0">
-                <!-- 닫기 버튼 -->
-                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" 
-                        style="z-index: 10;" onclick="closeModal()"></button>
-
-                <div class="row g-0 h-100"> <!-- g-0으로 간격 제거, h-100으로 높이 꽉 채움 -->
-                    <!-- 왼쪽: 이미지 영역 -->
-                    <div class="col-md-7 d-flex align-items-center justify-content-center bg-black" id="mImage">
-                        <!-- JS에서 img 태그가 삽입됨 -->
-                    </div>
-
-                    <!-- 오른쪽: 정보 영역 -->
-                    <div class="col-md-5 d-flex flex-column bg-white">
-                        <!-- 유저 정보 & 위치 (상단 고정) -->
-                        <div class="p-3 border-bottom">
-                            <div id="mOwner" class="fw-bold mb-1"></div> <!-- 유저 아이디 전용 -->
-                            <div id="mLocation" class="text-muted small"></div>
-                        </div>
-                        
-                        <!-- 본문 내용 (중간 영역, 길어지면 스크롤) -->
-                        <div id="mContent" class="p-3 flex-grow-1 overflow-auto">
-                            <!-- JS에서 본문 내용이 삽입됨 -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+	<div id="detailModal">
+		<span class="close-btn" onclick="closeModal()">&times;</span>
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body p-0">
+					<div class="row g-0 h-100">
+						<div id="mImage" class="col-md-7"></div>
+						<div id="mInfo" class="col-md-5 info-side">
+							<div class="modal-header-custom">
+								<strong id="mOwner"></strong>
+								<div id="mLocation" class="text-muted small"></div>
+							</div>
+							<div class="modal-body-custom">
+								<div id="mContent"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<c:import url="/WEB-INF/views/temp/footer_script.jsp"></c:import>
-
 	<script src="/js/feed-detail.js"></script>
-
 </body>
 </html>
