@@ -10,9 +10,13 @@
 	</select>
 
 	<select id="list" resultMap="detailResult" parameterType="Pager">
-		SELECT P.*, PI."FILE_NO", PI."FILE_NAME", PI."ORI_NAME" FROM "POST" P
-        LEFT JOIN "POST_IMG" PI ON P."FEED_NO" = PI."FEED_NO"
-		ORDER BY "FEED_DATE" DESC
+		SELECT
+		P.*,
+		PI."FILE_NO", PI."FILE_NAME", PI."ORI_NAME",
+		M."NAME" AS "USER_NAME" FROM "POST" P
+		LEFT JOIN "POST_IMG" PI ON P."FEED_NO" = PI."FEED_NO"
+		LEFT JOIN "USER" S ON P."USER_NO" = S."USER_NO" 
+		ORDER BY P."FEED_DATE" DESC
 		LIMIT #{perPage} OFFSET #{startNum}
 	</select>
 
@@ -26,6 +30,7 @@
 		WHERE "FEED_NO"=#{feedNo}
 
 	</select>
+	
 
 	<resultMap type="PostDTO" id="detailResult">
 		<id column="FEED_NO" property="feedNo" />
@@ -59,7 +64,8 @@
 	</insert>
 	<delete id="delete" parameterType="PostDTO">
 		DELETE FROM "POST"
-		WHERE "FEED_NO"=#{feedNo}
+		WHERE
+		"FEED_NO"=#{feedNo}
 	</delete>
 	<delete id="fileDelete" parameterType="FileDTO">
 		DELETE FROM "POST_IMG"

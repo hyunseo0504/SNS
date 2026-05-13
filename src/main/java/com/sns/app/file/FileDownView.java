@@ -53,6 +53,7 @@ public class FileDownView extends AbstractView {
         } catch (Exception e) {
             // 파일 전송 중 오류 발생 처리 로직 필요 시 추가
             throw e;
-        }
+        } 
+        
     }
 }

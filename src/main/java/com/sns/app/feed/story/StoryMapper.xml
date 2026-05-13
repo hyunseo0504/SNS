@@ -24,6 +24,7 @@
 		LEFT OUTER JOIN "STORY_IMG" SI ON S."FEED_NO" = SI."FEED_NO"
 		WHERE S."FEED_NO" = #{feedNo}
 	</select>
+	
 
 	<resultMap type="StoryDTO" id="detailResult">
 		<id column="FEED_NO" property="feedNo" />

@@ -33,6 +33,7 @@ public class PostService implements FeedService {
         
         return postMapper.list(pager);
     }
+    
 
     @Override
     public FeedDTO detail(FeedDTO feedDTO) throws Exception {

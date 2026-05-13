@@ -21,4 +21,5 @@ public class FeedDTO {
 	
 	private List<FileDTO> list;
 
+	
 }

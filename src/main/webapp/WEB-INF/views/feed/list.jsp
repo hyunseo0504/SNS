@@ -33,7 +33,7 @@
 									</div>
 								</c:forEach>
 							</div>
-							
+
 							<div class="post-container">
 								<c:forEach items="${postList}" var="p">
 									<article class="post-card">
@@ -68,6 +68,30 @@
 									</article>
 								</c:forEach>
 
+							</div>
+							<div>
+								<nav aria-label="Page navigation example">
+									<ul class="pagination">
+										<li class="page-item ${pager.pre ? '' : 'disabled'}"><a
+											class="page-link"
+											href="./list?page=${pager.pre ? pager.start-1 : pager.start}&search=${pager.search}&kind=${pager.kind}"
+											aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
+										</a></li>
+
+										<c:forEach begin="${pager.start}" end="${pager.end}" var="i">
+											<li class="page-item ${pager.page == i ? 'active' : ''}">
+												<a class="page-link"
+												href="./list?page=${i}&search=${pager.search}&kind=${pager.kind}">${i}</a>
+											</li>
+										</c:forEach>
+
+										<li class="page-item ${pager.next ? '' : 'disabled'}"><a
+											class="page-link"
+											href="./list?page=${pager.next ? pager.end+1 : pager.end}&search=${pager.search}&kind=${pager.kind}"
+											aria-label="Next"> <span aria-hidden="true">&raquo;</span>
+										</a></li>
+									</ul>
+								</nav>
 							</div>
 						</div>
 					</div>
