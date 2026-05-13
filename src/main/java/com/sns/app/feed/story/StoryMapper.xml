@@ -9,14 +9,16 @@
 	</select>
 
 	<select id="list" resultMap="detailResult" parameterType="Pager">
-		WITH LATEST_STORY AS (
-			SELECT DISTINCT ON (S."USER_NO")
-				S."FEED_NO",
-				S."FEED_DATE",
-				S."USER_NO",
-				S."FEED_THUMB"
-			FROM "STORY" S
-			ORDER BY S."USER_NO", S."FEED_DATE" DESC, S."FEED_NO" DESC
+		WITH
+		LATEST_STORY AS (
+		SELECT DISTINCT ON (S."USER_NO")
+		S."FEED_NO",
+		S."FEED_DATE",
+		S."USER_NO",
+		S."FEED_THUMB"
+		FROM "STORY" S
+		ORDER BY
+		S."USER_NO", S."FEED_DATE" DESC, S."FEED_NO" DESC
 		)
 		SELECT
 		LS.*,
@@ -25,46 +27,56 @@
 		SI."ORI_NAME",
 		U."USER_NICKNAME",
 		UIP."FILE_NO" AS "PROFILE_FILE_NO",
-		UIP."FILE_NAME" AS "PROFILE_FILE_NAME",
+		UIP."FILE_NAME" AS
+		"PROFILE_FILE_NAME",
 		UIP."ORI_NAME" AS "PROFILE_ORI_NAME"
-		FROM LATEST_STORY LS
+		FROM
+		LATEST_STORY LS
 		LEFT JOIN "STORY_IMG" SI
 		ON LS."FEED_NO" = SI."FEED_NO"
 		LEFT JOIN "USER" U
 		ON LS."USER_NO" = U."USER_NO"
 		LEFT JOIN LATERAL (
-			SELECT
-				UI."FILE_NO",
-				UI."FILE_NAME",
-				UI."ORI_NAME"
-			FROM "USER_IMG" UI
-			WHERE UI."USER_NO" = LS."USER_NO"
-			ORDER BY UI."FILE_NO" DESC
-			LIMIT 1
-		) UIP ON TRUE
+		SELECT
+		UI."FILE_NO",
+		UI."FILE_NAME",
+		UI."ORI_NAME"
+		FROM "USER_IMG" UI
+		WHERE UI."USER_NO" = LS."USER_NO"
+		ORDER BY UI."FILE_NO" DESC
+		LIMIT 1
+		)
+		UIP ON TRUE
 		ORDER BY LS."FEED_DATE" DESC
-		LIMIT #{perPage} OFFSET #{startNum}
+		LIMIT #{perPage} OFFSET
+		#{startNum}
 	</select>
 
 	<select id="detail" parameterType="StoryDTO"
 		resultMap="detailResult">
 		SELECT
 		S.*,
+		U."USER_NO",
 		U."USER_NICKNAME",
+		R."ROLE_NAME",
 		SI."FILE_NO",
 		SI."FILE_NAME",
 		SI."ORI_NAME"
-		FROM
-		"STORY" S
-		LEFT JOIN "STORY_IMG" SI
+		FROM "STORY" S
+		LEFT JOIN
+		"STORY_IMG" SI
 		ON S."FEED_NO" = SI."FEED_NO"
 		LEFT JOIN "USER" U
-		ON S."USER_NO" = U."USER_NO"
-		WHERE
-		S."FEED_NO" = #{feedNo}
+		ON
+		S."USER_NO" = U."USER_NO"
+		LEFT JOIN "ROLE" R
+		ON U."USER_NO" =
+		R."USER_NO"
+		WHERE S."FEED_NO" = #{feedNo}
 	</select>
 
-	<select id="listByUser" parameterType="StoryDTO" resultMap="detailResult">
+	<select id="listByUser" parameterType="StoryDTO"
+		resultMap="detailResult">
 		SELECT
 		S.*,
 		U."USER_NICKNAME",
@@ -73,11 +85,14 @@
 		SI."ORI_NAME"
 		FROM "STORY" S
 		LEFT JOIN "STORY_IMG" SI
-		ON S."FEED_NO" = SI."FEED_NO"
+		ON S."FEED_NO" =
+		SI."FEED_NO"
 		LEFT JOIN "USER" U
 		ON S."USER_NO" = U."USER_NO"
-		WHERE S."USER_NO" = #{userNo}
-		ORDER BY S."FEED_DATE" DESC, S."FEED_NO" DESC, SI."FILE_NO" ASC
+		WHERE
+		S."USER_NO" = #{userNo}
+		ORDER BY S."FEED_DATE" DESC, S."FEED_NO" DESC,
+		SI."FILE_NO" ASC
 	</select>
 
 
@@ -86,15 +101,22 @@
 		<result column="FEED_DATE" property="feedDate" />
 		<result column="USER_NO" property="userNo" />
 		<result column="FEED_THUMB" property="feedThumb" />
+
 		<association property="memberDTO" javaType="MemberDTO">
 			<result column="USER_NO" property="userNo" />
 			<result column="USER_NICKNAME" property="userNickname" />
+
 			<association property="profileDTO" javaType="ProfileDTO">
 				<id column="PROFILE_FILE_NO" property="fileNo" />
 				<result column="PROFILE_FILE_NAME" property="fileName" />
 				<result column="PROFILE_ORI_NAME" property="oriName" />
 			</association>
+
+			<collection property="roles" ofType="RoleDTO">
+				<result property="roleName" column="ROLE_NAME" />
+			</collection>
 		</association>
+
 		<collection property="list" javaType="java.util.List"
 			ofType="StoryFileDTO">
 			<id column="FILE_NO" property="fileNo" />

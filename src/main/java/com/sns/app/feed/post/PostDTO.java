@@ -19,5 +19,6 @@ public class PostDTO extends FeedDTO {
 	private Long feedDepth;
 	
 	private MemberDTO memberDTO;
+	private Long userNo;
 	
 }

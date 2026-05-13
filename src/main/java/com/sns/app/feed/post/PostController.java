@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -21,7 +22,6 @@ import com.sns.app.file.FileDTO;
 import com.sns.app.member.MemberDTO;
 import com.sns.app.pager.Pager;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -52,26 +52,19 @@ public class PostController {
 
 	// 2. 등록 폼 이동
 	@GetMapping("create")
-	public String create(HttpSession session, Model model) throws Exception {
-		MemberDTO memberDTO = (MemberDTO)session.getAttribute("member");
-		if(memberDTO != null) {
-			model.addAttribute("userNo", memberDTO.getUserNo());
-		}
-		model.addAttribute("name", "post");
+	public String create() throws Exception {
 		return "feed/create";
 	}
 
-	// 등록 처리
 	@PostMapping("create")
-	public String create(PostDTO postDTO, @RequestParam(value="attach", required=false) MultipartFile[] attach) throws Exception {
-		log.info("========== PostController.create() ==========");
-		log.info("postDTO.userNo: {}", postDTO.getUserNo());
-		log.info("postDTO.feedContent: {}", postDTO.getFeedContent());
-		log.info("attach.length: {}", attach != null ? attach.length : 0);
-		log.info("===========================================");
-		int result = postService.create(postDTO, attach);
-		log.info("PostController.create() - result: {}", result);
-		return "redirect:/feed/list";
+	public String create(PostDTO postDTO,
+	                     @RequestParam("attach") MultipartFile[] attach,
+	                     @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+
+	    postDTO.setUserNo(memberDTO.getUserNo());
+
+	    int result = postService.create(postDTO, attach);
+	    return "redirect:/feed/list";
 	}
 
 	// 피드 수정 폼 이동
