@@ -1,0 +1,64 @@
+/* 업로드 레이아웃 커스텀 */
+.upload-container {
+	max-width: 550px;
+	margin: 40px auto;
+}
+
+.card-upload {
+	border-radius: 12px;
+	border: 1px solid #dbdbdb;
+	overflow: hidden;
+}
+
+/* 테마별 상단 포인트 */
+.theme-post {
+	border-top: 6px solid #4e73df !important;
+}
+
+.theme-story {
+	border-top: 6px solid #e1306c !important;
+}
+
+/* 이미지 미리보기 박스 (1:1 고정) */
+#imagePreview {
+	width: 100%;
+	aspect-ratio: 1/1;
+	background-color: #fafafa;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	border-bottom: 1px solid #efefef;
+	overflow: hidden;
+	position: relative;
+}
+
+/* 크로퍼 내부 이미지 설정 */
+#imagePreview img {
+	max-width: 100%;
+	display: block;
+}
+
+.upload-placeholder {
+	text-align: center;
+	color: #8e8e8e;
+	position: absolute;
+	z-index: 5;
+}
+
+.upload-placeholder i {
+	font-size: 3.5rem;
+	margin-bottom: 10px;
+}
+
+/* 버튼 커스텀 */
+.btn-user {
+	padding: 10px;
+	font-weight: bold;
+	border-radius: 8px;
+}
+
+/* 크로퍼 캔버스 배경 (격자무늬 제거용) */
+.cropper-view-box, .cropper-face {
+	border-radius: 0%;
+}
