@@ -40,6 +40,10 @@ public class CommentController {
     	Authentication auth =
                 SecurityContextHolder.getContext().getAuthentication();
 
+	    if (auth == null || !(auth.getPrincipal() instanceof MemberDTO)) {
+	        return -1;
+	    }
+
         MemberDTO memberDTO = (MemberDTO) auth.getPrincipal();
 
         commentDTO.setUserNo(memberDTO.getUserNo());

@@ -32,7 +32,8 @@ function bindCommentEvents(feedNo) {
 
     if (!commentBtn) return;
 
-    if (commentBtn.disabled) return;
+    commentBtn.disabled = false;
+    commentInput.disabled = false;
 
     commentBtn.onclick = () => {
         const content = commentInput.value.trim();
@@ -68,6 +69,76 @@ function bindCommentEvents(feedNo) {
             }
         });
     };
+}
+
+function toggleReplyForm(commentNo, feedNo, commentDepth) {
+    const form = document.getElementById(`reply_form_${commentNo}`);
+    const input = document.getElementById(`reply_input_${commentNo}`);
+
+    if (!form || !input) return;
+
+    const isHidden = form.style.display === 'none' || form.style.display === '';
+    form.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) {
+        input.focus();
+    }
+}
+
+function submitReplyComment(commentNo, feedNo, parentDepth) {
+    const input = document.getElementById(`reply_input_${commentNo}`);
+    const form = document.getElementById(`reply_form_${commentNo}`);
+    if (!input || !form) return;
+
+    const content = input.value.trim();
+    if (!content) return;
+
+    const nextDepth = Number(parentDepth) + 1;
+    if (nextDepth > 1) {
+        alert("답글은 한 단계까지만 가능합니다.");
+        return;
+    }
+
+    const p = new FormData();
+    p.append("commentContent", content);
+    p.append("feedNo", feedNo);
+    p.append("commentRef", commentNo);
+    p.append("commentStep", 1);
+    p.append("commentDepth", nextDepth);
+
+    fetch("/comment/create", {
+        method: "POST",
+        credentials: 'same-origin',
+        body: p
+    })
+    .then(r => r.text())
+    .then(r => {
+        if (!r) return;
+
+        if (r.trim() === "-1") {
+            alert("로그인 후 댓글을 작성할 수 있습니다.");
+            location.href = "/member/login";
+            return;
+        }
+
+        if (r.trim() > 0) {
+            input.value = "";
+            form.style.display = 'none';
+            getCommentList(feedNo);
+        } else {
+            alert("답글 등록 실패");
+        }
+    });
+}
+
+function likeComment(commentNo, button) {
+    const icon = button.querySelector('i');
+    if (!icon) return;
+
+    if (icon.classList.contains('far')) {
+        icon.classList.replace('far', 'fas');
+    } else {
+        icon.classList.replace('fas', 'far');
+    }
 }
 
 function getStoryUserOrder() {
