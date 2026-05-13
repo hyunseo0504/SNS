@@ -14,4 +14,5 @@ public interface PostMapper extends FeedMapper {
 
 	public int fileDeleteFor(List<FileDTO> list) throws Exception;
 
+	
 }

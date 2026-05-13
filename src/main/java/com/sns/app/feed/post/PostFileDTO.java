@@ -13,4 +13,5 @@ public class PostFileDTO extends FileDTO{
 	
 	private Long feedNo;
 
+	
 }

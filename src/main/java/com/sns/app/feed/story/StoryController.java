@@ -38,6 +38,7 @@ public class StoryController {
 		return this.name;
 	}
 	
+	
 
 	// 2. 등록 폼 이동
 	@GetMapping("create")

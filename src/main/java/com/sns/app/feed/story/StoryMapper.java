@@ -7,4 +7,5 @@ import com.sns.app.feed.FeedMapper;
 @Mapper
 public interface StoryMapper extends FeedMapper {
 
+	
 }

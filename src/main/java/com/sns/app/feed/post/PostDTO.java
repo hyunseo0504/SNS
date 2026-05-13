@@ -17,4 +17,5 @@ public class PostDTO extends FeedDTO {
 	private Long feedStep;
 	private Long feedDepth;
 
+	
 }

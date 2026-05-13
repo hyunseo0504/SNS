@@ -28,4 +28,5 @@ public interface FeedMapper {
     // File Detail
     public FileDTO fileDetail(FileDTO fileDTO) throws Exception;
 
+    
 }

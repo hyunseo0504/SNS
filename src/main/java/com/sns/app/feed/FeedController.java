@@ -36,6 +36,7 @@ public class FeedController {
 		return "feed/list";
 
 	}
+	
 
 	@GetMapping("/detail/{type}/{feedNo}")
 	@ResponseBody

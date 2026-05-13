@@ -13,4 +13,5 @@ public class StoryFileDTO extends FileDTO {
 	
 	private Long feedNo;
 
+	
 }

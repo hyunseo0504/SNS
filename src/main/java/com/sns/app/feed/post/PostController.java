@@ -38,6 +38,7 @@ public class PostController {
 	public String getName() {
 		return this.name;
 	}
+	
 
 	// 피드 상세 조회
 	@GetMapping("detail")

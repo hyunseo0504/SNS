@@ -19,4 +19,5 @@ public interface FeedService {
     
     public FileDTO fileDetail(FileDTO fileDTO) throws Exception;
 
+    
 }

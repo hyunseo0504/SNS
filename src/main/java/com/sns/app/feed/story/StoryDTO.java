@@ -12,4 +12,5 @@ import lombok.ToString;
 public class StoryDTO extends FeedDTO{
 	
 
+	
 }
