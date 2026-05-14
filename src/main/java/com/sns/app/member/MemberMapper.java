@@ -19,4 +19,6 @@ public interface MemberMapper {
 	public List<MemberDTO> search(String keyword) throws Exception;
 	
 	
+	
+	
 }
