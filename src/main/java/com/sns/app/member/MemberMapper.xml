@@ -7,6 +7,8 @@
   
   <select id="search" resultType="MemberDTO" parameterType="String">
     SELECT * FROM "USER"
+    LEFT JOIN "USER_IMG"
+    USING("USER_NO")
     WHERE "USER_NICKNAME" LIKE CONCAT('%', #{keyword}, '%')
 </select>
   
