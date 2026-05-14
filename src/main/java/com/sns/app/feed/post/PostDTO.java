@@ -15,4 +15,5 @@ public class PostDTO extends FeedDTO {
 	private String feedContent;
 	
 	
+	
 }

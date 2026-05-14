@@ -112,12 +112,13 @@ fileInput.addEventListener('change', function(e) {
         reader.readAsDataURL(files[0]);
     } else {
         revokePostUrls();
-        postItems = files.map(file => ({
-            id: crypto.randomUUID(),
-            file,
-            objectUrl: makePostObjectUrl(file),
-            cropData: null
-        }));
+		postItems = files.map(file => ({
+		    // UUID 대신 현재 시간과 랜덤값을 조합한 ID 사용
+		    id: Date.now() + Math.random().toString(36).substr(2, 9), 
+		    file,
+		    objectUrl: makePostObjectUrl(file),
+		    cropData: null
+		}));
         postCurrentIndex = 0;
         renderPostPreview();
     }

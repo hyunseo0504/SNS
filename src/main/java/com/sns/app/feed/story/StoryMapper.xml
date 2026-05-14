@@ -69,9 +69,9 @@
 		LEFT JOIN "USER" U
 		ON
 		S."USER_NO" = U."USER_NO"
-		LEFT JOIN "ROLE" R
-		ON U."USER_NO" =
-		R."USER_NO"
+		LEFT JOIN "USER_ROLE" UR ON U."USER_NO" =
+		UR."USER_NO"
+		LEFT JOIN "ROLE" R ON UR."ROLE_NO" = R."ROLE_NO"
 		WHERE S."FEED_NO" = #{feedNo}
 	</select>
 
@@ -112,8 +112,10 @@
 				<result column="PROFILE_ORI_NAME" property="oriName" />
 			</association>
 
-			<collection property="roles" ofType="RoleDTO">
-				<result property="roleName" column="ROLE_NAME" />
+			<collection property="roles" javaType="java.util.List"
+				ofType="RoleDTO">
+				<id column="ROLE_NO" property="roleNo" />
+				<result column="ROLE_NAME" property="roleName" />
 			</collection>
 		</association>
 

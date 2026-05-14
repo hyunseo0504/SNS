@@ -19,6 +19,8 @@ public class FeedDTO {
 	private LocalDateTime feedDate;
 	private Long userNo;
 	private Long feedThumb;
+	private Boolean likedByMe;
+	private Long currentUserNo;
 	
 	private MemberDTO memberDTO;
 	

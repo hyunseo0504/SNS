@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+import com.sns.app.member.MemberDTO;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -48,7 +51,13 @@ public class StoryController {
 
 	// 3. 등록 처리 
 	@PostMapping("create")
-	public String create(StoryDTO storyDTO, @RequestParam(value="attach", required = false) MultipartFile[] attach) throws Exception {
+	public String create(StoryDTO storyDTO, @RequestParam(value="attach", required = false) MultipartFile[] attach,
+			@AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+
+		if (memberDTO != null) {
+			storyDTO.setUserNo(memberDTO.getUserNo());
+		}
+
 		int result = storyService.create(storyDTO, attach);
 
 		return "redirect:/feed/list";

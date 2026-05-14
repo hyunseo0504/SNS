@@ -23,6 +23,8 @@ public class CommentDTO {
 	private Long commentRef;
 	private Long commentStep;
 	private Long commentDepth;
+	private Boolean likedByMe;
+	private Long currentUserNo;
 	private MemberDTO memberDTO;
 	
 }

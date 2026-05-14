@@ -36,9 +36,31 @@ public class PostService implements FeedService {
         return postMapper.list(pager);
     }
     
+    public List<FeedDTO> myList(Pager pager) throws Exception {
+    	
+        pager.makePageNum(postMapper.getUserPostCount(pager));
+        
+        pager.makeStartNum();
+        
+        return postMapper.myList(pager);
+    }
+    
 
     @Override
     public FeedDTO detail(FeedDTO feedDTO) throws Exception {
+        return postMapper.detail(feedDTO);
+    }
+
+    @Transactional
+    public FeedDTO toggleThumb(FeedDTO feedDTO) throws Exception {
+        Long thumbCount = postMapper.countThumbByUser(feedDTO);
+        if (thumbCount != null && thumbCount > 0) {
+            postMapper.deleteThumb(feedDTO);
+        } else {
+            postMapper.insertThumb(feedDTO);
+        }
+
+        postMapper.syncThumbCount(feedDTO);
         return postMapper.detail(feedDTO);
     }
 
