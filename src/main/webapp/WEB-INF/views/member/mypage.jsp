@@ -49,7 +49,7 @@
 						<button onclick="location.href='/member/myposts'">모두보기</button>
 							<div class="post-summary-list">
 								<c:choose>
-									<c:when test="${not empty mypost}">
+									<c:when test="${not empty myposts}">
 										<ul>
 											<c:forEach var="post" items="${myposts}">
 												<li><a href="/member/myposts?feedNo=${post.feedNo}">
