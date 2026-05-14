@@ -27,7 +27,7 @@ public class FeedController {
 
 	@Autowired
 	private PostService postService;
-	
+
 	@Autowired
 	private MemberService memberService;
 
@@ -47,28 +47,28 @@ public class FeedController {
 		return "feed/list";
 
 	}
-	
+
 	@GetMapping("mypage")
-	public String myPage(Pager pager, Model model, @AuthenticationPrincipal MemberDTO memberDTO, Long userNo) throws Exception {
+	public String myPage(Pager pager, Model model, @AuthenticationPrincipal MemberDTO memberDTO, Long userNo)
+			throws Exception {
 
-	    if (memberDTO != null) {
-	        pager.setCurrentUserNo(memberDTO.getUserNo());
-	        
-	        if (userNo == null) {
-	            userNo = memberDTO.getUserNo();
-	        }
-	    }
+		if (memberDTO != null) {
+			pager.setCurrentUserNo(memberDTO.getUserNo());
 
-	    pager.setUserNo(userNo);
+			if (userNo == null) {
+				userNo = memberDTO.getUserNo();
+			}
+		}
 
-	    List<FeedDTO> postList = postService.myList(pager);
+		pager.setUserNo(userNo);
 
-	    model.addAttribute("postList", postList);
-	    model.addAttribute("userNo", userNo);
+		List<FeedDTO> postList = postService.myList(pager);
 
-	    return "member/mypage"; 
+		model.addAttribute("postList", postList);
+		model.addAttribute("userNo", userNo);
+
+		return "member/mypage";
 	}
-	
 
 	@GetMapping("/detail/story/user/{userNo}")
 	@ResponseBody
@@ -80,25 +80,26 @@ public class FeedController {
 	// 포스트 디테일 페이지
 	@GetMapping("/detail/post/{feedNo}")
 	public String postDetail(@PathVariable("feedNo") Long feedNo, Model model,
-	        @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+			@AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
 
-	    FeedDTO feedDTO = new FeedDTO();
-	    feedDTO.setFeedNo(feedNo);
+		FeedDTO feedDTO = new FeedDTO();
+		feedDTO.setFeedNo(feedNo);
 
-	    if (memberDTO != null) {
-	        feedDTO.setCurrentUserNo(memberDTO.getUserNo());
-	    }
+		if (memberDTO != null) {
+			feedDTO.setCurrentUserNo(memberDTO.getUserNo());
+		}
 
-	    FeedDTO post = postService.detail(feedDTO);
+		FeedDTO post = postService.detail(feedDTO);
 
-	    model.addAttribute("post", post);
+		model.addAttribute("post", post);
 
-	    return "feed/post-detail";
+		return "feed/post-detail";
 	}
 
 	// 스토리 디테일 페이지
 	@GetMapping("/detail/story/{feedNo}")
-	public String storyDetail(@PathVariable("feedNo") Long feedNo, Model model, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+	public String storyDetail(@PathVariable("feedNo") Long feedNo, Model model,
+			@AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
 		FeedDTO feedDTO = new FeedDTO();
 		feedDTO.setFeedNo(feedNo);
 		if (memberDTO != null) {
@@ -113,7 +114,8 @@ public class FeedController {
 	// 포스트 디테일 JSON API (모달)
 	@GetMapping("/api/post/{feedNo}")
 	@ResponseBody
-	public FeedDTO apiPostDetail(@PathVariable("feedNo") Long feedNo, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+	public FeedDTO apiPostDetail(@PathVariable("feedNo") Long feedNo, @AuthenticationPrincipal MemberDTO memberDTO)
+			throws Exception {
 		FeedDTO feedDTO = new FeedDTO();
 		feedDTO.setFeedNo(feedNo);
 		if (memberDTO != null) {
@@ -125,7 +127,8 @@ public class FeedController {
 	// 스토리 디테일 JSON API (모달)
 	@GetMapping("/api/story/{feedNo}")
 	@ResponseBody
-	public FeedDTO apiStoryDetail(@PathVariable("feedNo") Long feedNo, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+	public FeedDTO apiStoryDetail(@PathVariable("feedNo") Long feedNo, @AuthenticationPrincipal MemberDTO memberDTO)
+			throws Exception {
 		FeedDTO feedDTO = new FeedDTO();
 		feedDTO.setFeedNo(feedNo);
 		if (memberDTO != null) {
@@ -155,18 +158,40 @@ public class FeedController {
 
 		throw new IllegalArgumentException("Unsupported feed type: " + type);
 	}
-	
+
 	@GetMapping("userSearch")
-	public String userSearch(@RequestParam(value = "keyword", required = false) String keyword, Model model) throws Exception {
-		
+	public String userSearch(@RequestParam(value = "keyword", required = false) String keyword, Model model)
+			throws Exception {
+
 		// 회원 검색 서비스 호출
 		List<MemberDTO> memberList = memberService.search(keyword);
-		
-		// 데이터를 jsp로 전달
+
 		model.addAttribute("memberList", memberList);
 		model.addAttribute("keyword", keyword);
-		
-		// feed/userSearch.jsp 호출
+
 		return "feed/userSearch";
 	}
+
+	@GetMapping("goMypage")
+	public String goMypage(@RequestParam(value = "userNo", required = false) Long userNo,
+			@AuthenticationPrincipal MemberDTO memberDTO, Pager pager, Model model) throws Exception {
+
+		if (userNo == null) {
+			return "redirect:/feed/list";
+		}
+
+		pager.setUserNo(userNo);
+		if (memberDTO != null) {
+			pager.setCurrentUserNo(memberDTO.getUserNo());
+		}
+
+		List<FeedDTO> postList = postService.myList(pager);
+
+		// 3. 결과 전달
+		model.addAttribute("postList", postList);
+		model.addAttribute("userNo", userNo);
+
+		return "member/mypage";
+	}
+
 }

@@ -37,7 +37,7 @@
 								<c:when test="${not empty memberList}">
 									<div class="user-grid">
 										<c:forEach items="${memberList}" var="u">
-											<a href="/feed/profile/${u.userId}" class="user-card-link">
+											<a href="/feed/goMypage?userNo=${u.userNo}" class="user-card-link">
 												<div class="user-card">
 													<div class="user-avatar-wrapper">
 														<img src="${not empty u.profileDTO and not empty u.profileDTO.fileName ? '/files/member/'.concat(u.profileDTO.fileName) : '/img/default_user.avif'}" 
@@ -45,7 +45,7 @@
 													</div>
 													<div class="user-info">
 														<div class="user_nickname">${u.userNickname}</div>
-														<div class="user_id">@${u.userId}</div>
+														<div class="user_no">@${u.userNo}</div>
 													</div>
 												</div>
 											</a>
