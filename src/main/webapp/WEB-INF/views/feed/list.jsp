@@ -48,7 +48,7 @@
 
 							<div class="post-container">
 								<c:forEach items="${postList}" var="p">
-									<article class="post-card">
+									<article class="post-card" data-feed-no="${p.feedNo}">
 										<div class="p-3 d-flex align-items-center gap-3">
 											<div class="profile-circle">
 												<img

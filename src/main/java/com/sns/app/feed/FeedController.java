@@ -3,9 +3,9 @@ package com.sns.app.feed;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,6 +65,71 @@ public class FeedController {
 	}
 	
 
+	@GetMapping("/detail/story/user/{userNo}")
+	@ResponseBody
+	public List<FeedDTO> getStoryListByUser(@PathVariable("userNo") Long userNo) throws Exception {
+		return storyService.listByUser(userNo);
+	}
+
+	// ===== HTML 페이지 (직접 방문용) - 더 구체적인 패턴 먼저 정의 =====
+	// 포스트 디테일 페이지
+	@GetMapping("/detail/post/{feedNo}")
+	public String postDetail(@PathVariable("feedNo") Long feedNo, Model model,
+	        @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+
+	    FeedDTO feedDTO = new FeedDTO();
+	    feedDTO.setFeedNo(feedNo);
+
+	    if (memberDTO != null) {
+	        feedDTO.setCurrentUserNo(memberDTO.getUserNo());
+	    }
+
+	    FeedDTO post = postService.detail(feedDTO);
+
+	    model.addAttribute("post", post);
+
+	    return "feed/post-detail";
+	}
+
+	// 스토리 디테일 페이지
+	@GetMapping("/detail/story/{feedNo}")
+	public String storyDetail(@PathVariable("feedNo") Long feedNo, Model model, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+		FeedDTO feedDTO = new FeedDTO();
+		feedDTO.setFeedNo(feedNo);
+		if (memberDTO != null) {
+			feedDTO.setCurrentUserNo(memberDTO.getUserNo());
+		}
+		FeedDTO story = storyService.detail(feedDTO);
+		model.addAttribute("story", story);
+		return "feed/story-detail";
+	}
+
+	// ===== JSON API (모달용) =====
+	// 포스트 디테일 JSON API (모달)
+	@GetMapping("/api/post/{feedNo}")
+	@ResponseBody
+	public FeedDTO apiPostDetail(@PathVariable("feedNo") Long feedNo, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+		FeedDTO feedDTO = new FeedDTO();
+		feedDTO.setFeedNo(feedNo);
+		if (memberDTO != null) {
+			feedDTO.setCurrentUserNo(memberDTO.getUserNo());
+		}
+		return postService.detail(feedDTO);
+	}
+
+	// 스토리 디테일 JSON API (모달)
+	@GetMapping("/api/story/{feedNo}")
+	@ResponseBody
+	public FeedDTO apiStoryDetail(@PathVariable("feedNo") Long feedNo, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+		FeedDTO feedDTO = new FeedDTO();
+		feedDTO.setFeedNo(feedNo);
+		if (memberDTO != null) {
+			feedDTO.setCurrentUserNo(memberDTO.getUserNo());
+		}
+		return storyService.detail(feedDTO);
+	}
+
+	// 기존 호환성용 JSON API (generic 패턴은 마지막에 정의)
 	@GetMapping("/detail/{type}/{feedNo}")
 	@ResponseBody
 	public FeedDTO getFeedDetail(@PathVariable("type") String type, @PathVariable("feedNo") Long feedNo,
@@ -84,11 +149,5 @@ public class FeedController {
 		}
 
 		throw new IllegalArgumentException("Unsupported feed type: " + type);
-	}
-
-	@GetMapping("/detail/story/user/{userNo}")
-	@ResponseBody
-	public List<FeedDTO> getStoryListByUser(@PathVariable("userNo") Long userNo) throws Exception {
-		return storyService.listByUser(userNo);
 	}
 }

@@ -1,4 +1,5 @@
 const detailModal = document.getElementById('detailModal');
+const standaloneMode = !detailModal;
 const mImageArea = document.getElementById('mImage');
 const mInfoArea = document.getElementById('mInfo');
 const mOwner = document.getElementById('mOwner');
@@ -21,9 +22,9 @@ function getCommentList(feedNo) {
             listArea.innerHTML = r.trim();
         })
         .catch(e => console.error("댓글 로딩 실패:", e));
-		
-	
-		
+
+
+
 }
 
 function applyThumbState(button, likedByMe, thumbCount) {
@@ -39,6 +40,17 @@ function applyThumbState(button, likedByMe, thumbCount) {
     if (countArea) {
         countArea.textContent = thumbCount ?? 0;
     }
+}
+
+function syncListThumbState(feedNo, likedByMe, thumbCount) {
+    const cards = document.querySelectorAll(`.post-card[data-feed-no="${feedNo}"]`);
+
+    cards.forEach((card) => {
+        const likeButton = card.querySelector('.action-item[onclick*="likePost"]');
+        if (likeButton) {
+            applyThumbState(likeButton, likedByMe, thumbCount);
+        }
+    });
 }
 
 function bindCommentEvents(feedNo) {
@@ -63,26 +75,26 @@ function bindCommentEvents(feedNo) {
             credentials: 'same-origin',
             body: p
         })
-        .then(r => r.text())
-        .then(r => {
-			
-			console.log("댓글 등록 응답:", r);
-			
-            if (!r) return;
+            .then(r => r.text())
+            .then(r => {
 
-            if (r.trim() === "-1") {
-                alert("로그인 후 댓글을 작성할 수 있습니다.");
-                location.href = "/member/login";
-                return;
-            }
+                console.log("댓글 등록 응답:", r);
 
-            if (r.trim() > 0) {
-                commentInput.value = "";
-                getCommentList(feedNo); // 등록 후 리스트 새로고침
-            } else {
-                alert("댓글 등록 실패");
-            }
-        });
+                if (!r) return;
+
+                if (r.trim() === "-1") {
+                    alert("로그인 후 댓글을 작성할 수 있습니다.");
+                    location.href = "/member/login";
+                    return;
+                }
+
+                if (r.trim() > 0) {
+                    commentInput.value = "";
+                    getCommentList(feedNo); // 등록 후 리스트 새로고침
+                } else {
+                    alert("댓글 등록 실패");
+                }
+            });
     };
 }
 
@@ -125,24 +137,24 @@ function submitReplyComment(commentNo, feedNo, parentDepth) {
         credentials: 'same-origin',
         body: p
     })
-    .then(r => r.text())
-    .then(r => {
-        if (!r) return;
+        .then(r => r.text())
+        .then(r => {
+            if (!r) return;
 
-        if (r.trim() === "-1") {
-            alert("로그인 후 댓글을 작성할 수 있습니다.");
-            location.href = "/member/login";
-            return;
-        }
+            if (r.trim() === "-1") {
+                alert("로그인 후 댓글을 작성할 수 있습니다.");
+                location.href = "/member/login";
+                return;
+            }
 
-        if (r.trim() > 0) {
-            input.value = "";
-            form.style.display = 'none';
-            getCommentList(feedNo);
-        } else {
-            alert("답글 등록 실패");
-        }
-    });
+            if (r.trim() > 0) {
+                input.value = "";
+                form.style.display = 'none';
+                getCommentList(feedNo);
+            } else {
+                alert("답글 등록 실패");
+            }
+        });
 }
 
 async function likeComment(event, commentNo, button) {
@@ -243,13 +255,25 @@ async function loadStoryByUser(userNo, selectedFeedNo, stepDirection = 1) {
         const imgPath = story.list?.[0]?.fileName
             ? `/files/story/${story.list[0].fileName}`
             : '/img/default_user.avif';
+        const profileImgPath = story.memberDTO?.profileDTO?.fileName
+            ? `/files/member/${story.memberDTO.profileDTO.fileName}`
+            : '/img/default_user.avif';
         const ownerName = story.memberDTO?.userNickname || story.memberDTO?.userNo || '';
 
         return `
             <div class="story-carousel-slide">
                 <div class="story-frame">
-                    <div class="story-user-label">${ownerName}</div>
+                    <div class="story-user-label">
+                        <div class="d-flex align-items-center">
+                            <div class="profile-circle avatar-xs me-2"><img src="${profileImgPath}" onerror="this.src='/img/default_user.avif'"></div>
+                            <span>${ownerName}</span>
+                        </div>
+                    </div>
                     <img src="${imgPath}" onerror="this.src='/img/default_user.avif'">
+                    <div class="story-controls">
+                        <button type="button" class="btn btn-sm btn-icon story-like-btn" onclick="likePost(event, '${story.feedNo}', this)"><i class="${story.likedByMe ? 'fas' : 'far'} fa-heart"></i></button>
+                        <button type="button" class="btn btn-sm btn-icon story-share-btn" onclick="sharePost(event, '${story.feedNo}', 'story')"><i class="far fa-paper-plane"></i></button>
+                    </div>
                 </div>
             </div>
         `;
@@ -359,25 +383,46 @@ async function likePost(event, feedNo, button) {
     }
 
     applyThumbState(button, result.likedByMe, result.feedThumb);
+    syncListThumbState(feedNo, result.likedByMe, result.feedThumb);
 }
 
 // 공유하기 기능
-function sharePost(event, feedNo) {
+function sharePost(event, feedNo, type = 'post') {
     if (event) {
         event.stopPropagation();
     }
 
-    // 임시: 주소창 복사 로직
-    const dummy = document.createElement('input');
-    const text = window.location.href;
+    let path = '';
+    if (type === 'story') {
+        path = `/feed/detail/story/${feedNo}`;
+    } else {
+        path = `/feed/detail/post/${feedNo}`;
+    }
 
-    document.body.appendChild(dummy);
-    dummy.value = text;
-    dummy.select();
-    document.execCommand('copy');
-    document.body.removeChild(dummy);
+    const url = `${window.location.origin}${path}`;
 
-    alert("공유 링크가 클립보드에 복사되었습니다.");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('공유 링크가 클립보드에 복사되었습니다.');
+        }).catch(() => {
+            // fallback
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = url;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            alert('공유 링크가 클립보드에 복사되었습니다.');
+        });
+    } else {
+        const dummy = document.createElement('input');
+        document.body.appendChild(dummy);
+        dummy.value = url;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        alert('공유 링크가 클립보드에 복사되었습니다.');
+    }
 }
 
 // 상단 스토리 클릭 시
@@ -398,15 +443,24 @@ async function renderStory(feedNo, userNo) {
             return;
         }
 
-        const response = await fetch(`/feed/detail/story/${feedNo}`);
+        const response = await fetch(`/feed/api/story/${feedNo}`);
         const data = await response.json();
         const imgPath = data.list?.[0]?.fileName ? `/files/story/${data.list[0].fileName}` : '/img/default_user.avif';
         const ownerName = data.memberDTO?.userNickname || data.memberDTO?.userNo || '';
 
         mImageArea.innerHTML = `
             <div class="story-frame">
-                <div class="story-user-label">${ownerName}</div>
+                <div class="story-user-label">
+                    <div class="d-flex align-items-center">
+                        <div class="profile-circle avatar-xs me-2"><img src="${data.memberDTO?.profileDTO?.fileName ? '/files/member/'.concat(data.memberDTO.profileDTO.fileName) : '/img/default_user.avif'}" onerror="this.src='/img/default_user.avif'"></div>
+                        <span>${ownerName}</span>
+                    </div>
+                </div>
                 <img src="${imgPath}" onerror="this.src='/img/default_user.avif'">
+                <div class="story-controls">
+                    <button type="button" class="btn btn-sm btn-icon story-like-btn" onclick="likePost(event, '${feedNo}', this)"><i class="far fa-heart"></i></button>
+                    <button type="button" class="btn btn-sm btn-icon story-share-btn" onclick="sharePost(event, '${feedNo}', 'story')"><i class="far fa-paper-plane"></i></button>
+                </div>
             </div>
         `;
     } catch (e) { closeModal(); }
@@ -414,14 +468,21 @@ async function renderStory(feedNo, userNo) {
 
 // 하단 포스트 클릭 시
 async function renderPost(feedNo) {
-    detailModal.classList.add('post-mode');
-    mImageArea.className = 'col-md-7';
+    if (!standaloneMode && detailModal) {
+        detailModal.classList.add('post-mode');
+        mImageArea.className = 'col-md-7';
+    } else {
+        mImageArea.className = 'post-image-area';
+    }
 
     try {
-        const response = await fetch(`/feed/detail/post/${feedNo}`);
+        const response = await fetch(`/feed/api/post/${feedNo}`);
         const data = await response.json();
         const ownerName = data.memberDTO?.userNickname || data.memberDTO?.userNo || '';
 
+        const profileImgPath = (data.memberDTO?.profileDTO?.fileName)
+            ? `/files/member/${data.memberDTO.profileDTO.fileName}`
+            : '/img/default_user.avif';
         // 이미지 슬라이더 생성 부분
         const images = data.list && data.list.length > 0
             ? data.list.map((fileDTO) => `
@@ -446,21 +507,40 @@ async function renderPost(feedNo) {
 
         // 정보창(mInfoArea) 구조 재구성: 상단 유저정보 + 중간 댓글리스트 + 하단 입력창
         mInfoArea.innerHTML = `
-            <div class="p-3 border-bottom w-100">
-                <strong id="mOwner">${ownerName}</strong> 
-                <small id="mLocation" class="text-muted d-block">${data.feedLocation || ''}</small>
-            </div>
-            <div id="comment_scroll_area" style="flex-grow: 1; overflow-y: auto; width: 100%; padding: 15px;">
-                <div id="mContent" class="mb-3"><strong>${ownerName}</strong> ${data.feedContent || ''}</div>
-                <hr>
-                <div id="comment_display_list"></div> <!-- 댓글이 출력될 장소 -->
-            </div>
+                        <div class="p-3 border-bottom w-100 d-flex align-items-center">
+                        	<!-- 1. 상단 프로필 이미지 (me-3로 간격 확보) -->
+                        	<div class="profile-circle avatar-md me-3">
+                        	    <img src="${profileImgPath}" onerror="this.src='/img/default_user.avif'">
+                        	</div>
+				            
+				            <div>
+				                <strong id="mOwner" class="d-block" style="line-height:1.2;">${ownerName}</strong> 
+				                <!-- 2. 장소 아이콘 추가 (fa-location-dot) -->
+								<small id="mLocation" class="text-muted">
+								    <i class="fas fa-location-dot me-3"></i>${data.feedLocation || ''}
+								</small>
+				            </div>
+				        </div>
+				        
+				        <div id="comment_scroll_area" style="flex-grow: 1; overflow-y: auto; width: 100%; padding: 15px;">
+                        	<div id="mContent" class="mb-3 d-flex gap-2">
+                        	    <!-- 본문에도 작성자 프로필 작게 표시 -->
+                        	    <div class="profile-circle avatar-xs flex-shrink-0">
+                        	        <img src="${profileImgPath}" onerror="this.src='/img/default_user.avif'">
+                        	    </div>
+				                <div>
+				                    <strong>${ownerName}</strong> ${data.feedContent || ''}
+				                </div>
+				            </div>
+				            <hr>
+				            <div id="comment_display_list"></div> 
+				        </div>
             <div class="px-3 py-2 border-top d-flex align-items-center" style="gap: 20px;">
                 <div class="action-item" style="cursor: pointer;" onclick="likePost(event, '${feedNo}', this)">
                     <i class="${data.likedByMe ? 'fas' : 'far'} fa-heart fa-lg"></i>
                     <span class="like-count ms-1 small">${data.feedThumb ?? 0}</span>
                 </div>
-                <div class="action-item" style="cursor: pointer;" onclick="sharePost(event, '${feedNo}')">
+                <div class="action-item" style="cursor: pointer;" onclick="sharePost(event, '${feedNo}', 'post')">
                     <i class="far fa-paper-plane fa-lg"></i>
                 </div>
             </div>
@@ -483,9 +563,10 @@ async function renderPost(feedNo) {
         getCommentList(feedNo);
         bindCommentEvents(feedNo);
 
-    } catch (e) { 
-        console.error(e);
-        closeModal(); 
+    } catch (e) {
+        console.error("포스트 로드 실패:", e);
+        alert("포스트를 불러올 수 없습니다. 브라우저 콘솔을 확인하세요.");
+        closeModal();
     }
 }
 
