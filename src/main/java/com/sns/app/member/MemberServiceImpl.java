@@ -1,5 +1,8 @@
 package com.sns.app.member;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -32,6 +35,15 @@ public class MemberServiceImpl implements MemberService, UserDetailsService{
 	@Autowired
 	private PasswordEncoder encoder;
 	
+	@Override
+	public List<MemberDTO> search(String keyword) throws Exception {
+		
+		if (keyword == null || keyword.trim().isEmpty()) {
+			return Collections.emptyList();
+		}
+		
+		return memberMapper.search(keyword);
+	}
 	
 	
 	@Override

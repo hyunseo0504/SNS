@@ -5,6 +5,11 @@
   
   <mapper namespace="com.sns.app.member.MemberMapper">
   
+  <select id="search" resultType="MemberDTO">
+    SELECT * FROM "USER"
+    WHERE "USER_NICKNAME" = #{userNickname} LIKE CONCAT('%', #{keyword}, '%')
+</select>
+  
   <update id="update" parameterType="MemberDTO">
   	UPDATE "USER"
   	<set>
