@@ -1,4 +1,6 @@
 const detailModal = document.getElementById('detailModal');
+const shareModal = document.getElementById('shareModal');
+const standaloneMode = !detailModal;
 const mImageArea = document.getElementById('mImage');
 const mInfoArea = document.getElementById('mInfo');
 const mOwner = document.getElementById('mOwner');
@@ -21,9 +23,6 @@ function getCommentList(feedNo) {
             listArea.innerHTML = r.trim();
         })
         .catch(e => console.error("댓글 로딩 실패:", e));
-		
-	
-		
 }
 
 function applyThumbState(button, likedByMe, thumbCount) {
@@ -39,6 +38,16 @@ function applyThumbState(button, likedByMe, thumbCount) {
     if (countArea) {
         countArea.textContent = thumbCount ?? 0;
     }
+}
+
+function syncListThumbState(feedNo, likedByMe, thumbCount) {
+    const cards = document.querySelectorAll(`.post-card[data-feed-no="${feedNo}"]`);
+    cards.forEach((card) => {
+        const likeButton = card.querySelector('.action-item[onclick*="likePost"]');
+        if (likeButton) {
+            applyThumbState(likeButton, likedByMe, thumbCount);
+        }
+    });
 }
 
 function bindCommentEvents(feedNo) {
@@ -63,26 +72,21 @@ function bindCommentEvents(feedNo) {
             credentials: 'same-origin',
             body: p
         })
-        .then(r => r.text())
-        .then(r => {
-			
-			console.log("댓글 등록 응답:", r);
-			
-            if (!r) return;
-
-            if (r.trim() === "-1") {
-                alert("로그인 후 댓글을 작성할 수 있습니다.");
-                location.href = "/member/login";
-                return;
-            }
-
-            if (r.trim() > 0) {
-                commentInput.value = "";
-                getCommentList(feedNo); // 등록 후 리스트 새로고침
-            } else {
-                alert("댓글 등록 실패");
-            }
-        });
+            .then(r => r.text())
+            .then(r => {
+                if (!r) return;
+                if (r.trim() === "-1") {
+                    alert("로그인 후 댓글을 작성할 수 있습니다.");
+                    location.href = "/member/login";
+                    return;
+                }
+                if (r.trim() > 0) {
+                    commentInput.value = "";
+                    getCommentList(feedNo);
+                } else {
+                    alert("댓글 등록 실패");
+                }
+            });
     };
 }
 
@@ -125,30 +129,26 @@ function submitReplyComment(commentNo, feedNo, parentDepth) {
         credentials: 'same-origin',
         body: p
     })
-    .then(r => r.text())
-    .then(r => {
-        if (!r) return;
-
-        if (r.trim() === "-1") {
-            alert("로그인 후 댓글을 작성할 수 있습니다.");
-            location.href = "/member/login";
-            return;
-        }
-
-        if (r.trim() > 0) {
-            input.value = "";
-            form.style.display = 'none';
-            getCommentList(feedNo);
-        } else {
-            alert("답글 등록 실패");
-        }
-    });
+        .then(r => r.text())
+        .then(r => {
+            if (!r) return;
+            if (r.trim() === "-1") {
+                alert("로그인 후 댓글을 작성할 수 있습니다.");
+                location.href = "/member/login";
+                return;
+            }
+            if (r.trim() > 0) {
+                input.value = "";
+                form.style.display = 'none';
+                getCommentList(feedNo);
+            } else {
+                alert("답글 등록 실패");
+            }
+        });
 }
 
 async function likeComment(event, commentNo, button) {
-    if (event) {
-        event.stopPropagation();
-    }
+    if (event) event.stopPropagation();
 
     const formData = new FormData();
     formData.append('commentNo', commentNo);
@@ -165,7 +165,6 @@ async function likeComment(event, commentNo, button) {
         location.href = '/member/login';
         return;
     }
-
     applyThumbState(button, result.likedByMe, result.commentThumb);
 }
 
@@ -243,13 +242,30 @@ async function loadStoryByUser(userNo, selectedFeedNo, stepDirection = 1) {
         const imgPath = story.list?.[0]?.fileName
             ? `/files/story/${story.list[0].fileName}`
             : '/img/default_user.avif';
+        
+        // [수정] 프로필 이미지 경로 생성 로직 개선
+        const profileImgPath = story.memberDTO?.profileDTO?.fileName
+            ? `/files/member/${story.memberDTO.profileDTO.fileName}`
+            : '/img/default_user.avif';
+            
         const ownerName = story.memberDTO?.userNickname || story.memberDTO?.userNo || '';
 
         return `
             <div class="story-carousel-slide">
                 <div class="story-frame">
-                    <div class="story-user-label">${ownerName}</div>
+                    <div class="story-user-label">
+                        <div class="d-flex align-items-center">
+                            <div class="profile-circle avatar-xs me-2">
+                                <img src="${profileImgPath}" onerror="this.src='/img/default_user.avif'">
+                            </div>
+                            <span>${ownerName}</span>
+                        </div>
+                    </div>
                     <img src="${imgPath}" onerror="this.src='/img/default_user.avif'">
+                    <div class="story-controls">
+                        <button type="button" class="btn btn-sm btn-icon story-like-btn" onclick="likePost(event, '${story.feedNo}', this)"><i class="${story.likedByMe ? 'fas' : 'far'} fa-heart"></i></button>
+                        <button type="button" class="btn btn-sm btn-icon story-share-btn" onclick="sharePost(event, '${story.feedNo}', 'story')"><i class="far fa-paper-plane"></i></button>
+                    </div>
                 </div>
             </div>
         `;
@@ -275,7 +291,6 @@ async function loadStoryByUser(userNo, selectedFeedNo, stepDirection = 1) {
                 renderStorySlide(storySlideIndex - 1);
                 return;
             }
-
             const prevUserNo = getAdjacentStoryUser(-1);
             if (!prevUserNo) return;
             await loadStoryByUser(prevUserNo, null, -1);
@@ -288,7 +303,6 @@ async function loadStoryByUser(userNo, selectedFeedNo, stepDirection = 1) {
                 renderStorySlide(storySlideIndex + 1);
                 return;
             }
-
             const nextUserNo = getAdjacentStoryUser(1);
             if (!nextUserNo) return;
             await loadStoryByUser(nextUserNo, null, 1);
@@ -336,11 +350,9 @@ function openDetail(type, feedNo, userNo) {
         renderPost(feedNo);
     }
 }
-// 좋아요 기능
+
 async function likePost(event, feedNo, button) {
-    if (event) {
-        event.stopPropagation();
-    }
+    if (event) event.stopPropagation();
 
     const formData = new FormData();
     formData.append('feedNo', feedNo);
@@ -359,70 +371,177 @@ async function likePost(event, feedNo, button) {
     }
 
     applyThumbState(button, result.likedByMe, result.feedThumb);
+    syncListThumbState(feedNo, result.likedByMe, result.feedThumb);
 }
 
-// 공유하기 기능
-function sharePost(event, feedNo) {
-    if (event) {
-        event.stopPropagation();
+// 공유 창 닫기 함수
+function closeShareModal() {
+    if (shareModal) {
+        shareModal.style.display = 'none';
+        // 상세 모달이 열려있는 상태가 아니라면 본문 스크롤 정상화
+        if (typeof detailModal !== 'undefined' && detailModal.style.display !== 'flex') {
+            document.body.style.overflow = 'auto';
+        }
+    }
+}
+
+function sharePost(event, feedNo, type = 'post') {
+    if (event) event.stopPropagation();
+
+    if (!shareModal) return;
+
+    // 1. 상세 모달(detailModal)이 켜져 있다면, 그 녀석의 z-index를 확인해서 그것보다 무조건 높게 설정
+    if (detailModal && detailModal.style.display === 'flex') {
+        // CSS 파일이나 인라인에 적용된 z-index 값을 가져옴 (없으면 기본값 계산)
+        const detailZIndex = window.getComputedStyle(detailModal).zIndex;
+        const parsedZIndex = parseInt(detailZIndex, 10);
+        
+        if (!isNaN(parsedZIndex)) {
+            // 상세 모달보다 무조건 10만큼 더 위에 오도록 동적 주입
+            shareModal.style.setProperty('z-index', (parsedZIndex + 10).toString(), 'important');
+        } else {
+            // 만약 숫자가 아니면 그냥 우주 끝까지 높임
+            shareModal.style.setProperty('z-index', '99999', 'important');
+        }
+    } else {
+        // 상세 모달이 안 켜져 있는 일반 피드 상태일 때의 기본 높이
+        shareModal.style.setProperty('z-index', '3000', 'important');
     }
 
-    // 임시: 주소창 복사 로직
-    const dummy = document.createElement('input');
-    const text = window.location.href;
+    // 공유 선택창 열기
+    shareModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 
+    // 2. 외부로 공유하기 버튼 (링크 복사)
+    const shareExternalBtn = document.getElementById('shareExternalBtn');
+    if (shareExternalBtn) {
+        shareExternalBtn.onclick = () => {
+            let path = (type === 'story') ? `/feed/detail/story/${feedNo}` : `/feed/detail/post/${feedNo}`;
+            const url = `${window.location.origin}${path}`;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('공유 링크가 클립보드에 복사되었습니다.');
+                    closeShareModal();
+                }).catch(() => {
+                    copyToClipboardFallback(url);
+                    closeShareModal();
+                });
+            } else {
+                copyToClipboardFallback(url);
+                closeShareModal();
+            }
+        };
+    }
+
+    // 3. 채팅으로 공유하기 버튼
+    const shareChatBtn = document.getElementById('shareChatBtn');
+    if (shareChatBtn) {
+        shareChatBtn.onclick = () => {
+            alert('채팅 공유 기능 준비 중입니다.');
+            closeShareModal();
+        };
+    }
+}
+
+// 스크립트 하단 window.onclick 이벤트에 shareModal 바깥 클릭 시 닫히는 로직 추가
+const originalWindowClick = window.onclick;
+window.onclick = (e) => { 
+    if (originalWindowClick) originalWindowClick(e); // 기존 윈도우 클릭 이벤트 유지
+    if (e.target == shareModal) closeShareModal(); 
+};
+
+// ESC 키 입력 시 닫히는 로직 추가
+const originalKeyDown = document.onkeydown;
+document.onkeydown = (e) => {
+    if (originalKeyDown) originalKeyDown(e); // 기존 키 입력 이벤트 유지
+    if (e.key === 'Escape') closeShareModal();
+};
+
+function copyToClipboardFallback(url) {
+    const dummy = document.createElement('input');
     document.body.appendChild(dummy);
-    dummy.value = text;
+    dummy.value = url;
     dummy.select();
     document.execCommand('copy');
     document.body.removeChild(dummy);
-
-    alert("공유 링크가 클립보드에 복사되었습니다.");
+    alert('공유 링크가 클립보드에 복사되었습니다.');
 }
 
-// 상단 스토리 클릭 시
+// [수정] 스토리 렌더링 함수 - 프로필 이미지 노출 로직 개선
 async function renderStory(feedNo, userNo) {
     detailModal.classList.add('story-mode');
-    mInfoArea.style.display = 'none'; // 댓글창 숨김
-
-    // [중요] 부트스트랩 col 클래스를 제거하고 가득 채움
+    mInfoArea.style.display = 'none';
     mImageArea.className = 'h-100 w-100 d-flex justify-content-center';
 
     try {
         if (userNo) {
             storyUserOrder = getStoryUserOrder();
             const loaded = await loadStoryByUser(userNo, feedNo, 1);
-            if (!loaded) {
-                closeModal();
-            }
+            if (!loaded) closeModal();
             return;
         }
 
-        const response = await fetch(`/feed/detail/story/${feedNo}`);
+        const response = await fetch(`/feed/api/story/${feedNo}`);
         const data = await response.json();
+        
         const imgPath = data.list?.[0]?.fileName ? `/files/story/${data.list[0].fileName}` : '/img/default_user.avif';
         const ownerName = data.memberDTO?.userNickname || data.memberDTO?.userNo || '';
+        
+        // 프로필 이미지 경로 안전하게 생성 (여러 구조에 대응)
+        const profileFileName = data.memberDTO?.profileDTO?.fileName
+            || data.profileDTO?.fileName
+            || data.memberDTO?.fileName
+            || data.profileFileName
+            || data.PROFILE_FILE_NAME;
+        const profileImgPath = profileFileName ? `/files/member/${profileFileName}` : '/img/default_user.avif';
 
         mImageArea.innerHTML = `
             <div class="story-frame">
-                <div class="story-user-label">${ownerName}</div>
+                <div class="story-user-label">
+                    <div class="d-flex align-items-center">
+                        <div class="profile-circle avatar-xs me-2">
+                            <img src="${profileImgPath}" onerror="this.src='/img/default_user.avif'">
+                        </div>
+                        <span>${ownerName}</span>
+                    </div>
+                </div>
                 <img src="${imgPath}" onerror="this.src='/img/default_user.avif'">
+                <div class="story-controls">
+                    <button type="button" class="btn btn-sm btn-icon story-like-btn" onclick="likePost(event, '${feedNo}', this)">
+                        <i class="${data.likedByMe ? 'fas' : 'far'} fa-heart"></i>
+                        <span class="like-count ms-1 small">${data.feedThumb ?? 0}</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-icon story-share-btn" onclick="sharePost(event, '${feedNo}', 'story')"><i class="far fa-paper-plane"></i></button>
+                </div>
             </div>
         `;
-    } catch (e) { closeModal(); }
+    } catch (e) { 
+        console.error("스토리 로드 실패:", e);
+        closeModal(); 
+    }
 }
 
-// 하단 포스트 클릭 시
 async function renderPost(feedNo) {
-    detailModal.classList.add('post-mode');
-    mImageArea.className = 'col-md-7';
+    if (!standaloneMode && detailModal) {
+        detailModal.classList.add('post-mode');
+        mImageArea.className = 'col-md-7';
+    } else {
+        mImageArea.className = 'post-image-area';
+    }
 
     try {
-        const response = await fetch(`/feed/detail/post/${feedNo}`);
+        const response = await fetch(`/feed/api/post/${feedNo}`);
         const data = await response.json();
         const ownerName = data.memberDTO?.userNickname || data.memberDTO?.userNo || '';
 
-        // 이미지 슬라이더 생성 부분
+        const postProfileFileName = data.memberDTO?.profileDTO?.fileName
+            || data.profileDTO?.fileName
+            || data.memberDTO?.fileName
+            || data.profileFileName
+            || data.PROFILE_FILE_NAME;
+        const profileImgPath = postProfileFileName ? `/files/member/${postProfileFileName}` : '/img/default_user.avif';
+
         const images = data.list && data.list.length > 0
             ? data.list.map((fileDTO) => `
                 <div class="post-carousel-slide">
@@ -444,23 +563,36 @@ async function renderPost(feedNo) {
                 <div class="post-carousel-counter" id="postCarouselCounter"></div>
             </div>`;
 
-        // 정보창(mInfoArea) 구조 재구성: 상단 유저정보 + 중간 댓글리스트 + 하단 입력창
         mInfoArea.innerHTML = `
-            <div class="p-3 border-bottom w-100">
-                <strong id="mOwner">${ownerName}</strong> 
-                <small id="mLocation" class="text-muted d-block">${data.feedLocation || ''}</small>
+            <div class="p-3 border-bottom w-100 d-flex align-items-center">
+                <div class="profile-circle avatar-md me-3">
+                    <img src="${profileImgPath}" onerror="this.src='/img/default_user.avif'">
+                </div>
+                <div>
+                    <strong id="mOwner" class="d-block" style="line-height:1.2;">${ownerName}</strong> 
+                    <small id="mLocation" class="text-muted">
+                        <i class="fas fa-location-dot me-1"></i>${data.feedLocation || ''}
+                    </small>
+                </div>
             </div>
             <div id="comment_scroll_area" style="flex-grow: 1; overflow-y: auto; width: 100%; padding: 15px;">
-                <div id="mContent" class="mb-3"><strong>${ownerName}</strong> ${data.feedContent || ''}</div>
+                <div id="mContent" class="mb-3 d-flex gap-2">
+                    <div class="profile-circle avatar-xs flex-shrink-0">
+                        <img src="${profileImgPath}" onerror="this.src='/img/default_user.avif'">
+                    </div>
+                    <div>
+                        <strong>${ownerName}</strong> ${data.feedContent || ''}
+                    </div>
+                </div>
                 <hr>
-                <div id="comment_display_list"></div> <!-- 댓글이 출력될 장소 -->
+                <div id="comment_display_list"></div> 
             </div>
             <div class="px-3 py-2 border-top d-flex align-items-center" style="gap: 20px;">
                 <div class="action-item" style="cursor: pointer;" onclick="likePost(event, '${feedNo}', this)">
                     <i class="${data.likedByMe ? 'fas' : 'far'} fa-heart fa-lg"></i>
                     <span class="like-count ms-1 small">${data.feedThumb ?? 0}</span>
                 </div>
-                <div class="action-item" style="cursor: pointer;" onclick="sharePost(event, '${feedNo}')">
+                <div class="action-item" style="cursor: pointer;" onclick="sharePost(event, '${feedNo}', 'post')">
                     <i class="far fa-paper-plane fa-lg"></i>
                 </div>
             </div>
@@ -472,20 +604,18 @@ async function renderPost(feedNo) {
             </div>
         `;
 
-        // 슬라이더 이벤트 연결
         const prevBtn = document.getElementById('postCarouselPrev');
         const nextBtn = document.getElementById('postCarouselNext');
         if (prevBtn) prevBtn.onclick = () => renderPostSlide(postSlideIndex - 1);
         if (nextBtn) nextBtn.onclick = () => renderPostSlide(postSlideIndex + 1);
         renderPostSlide(0);
 
-        // 댓글 관련 로직 실행
         getCommentList(feedNo);
         bindCommentEvents(feedNo);
 
-    } catch (e) { 
-        console.error(e);
-        closeModal(); 
+    } catch (e) {
+        console.error("포스트 로드 실패:", e);
+        closeModal();
     }
 }
 

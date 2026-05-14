@@ -1,6 +1,7 @@
 package com.sns.app.feed.post;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sns.app.feed.FeedDTO;
 import com.sns.app.file.FileDTO;
 import com.sns.app.member.MemberDTO;
+import com.sns.app.pager.Pager;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +41,6 @@ public class PostController {
 	public String getName() {
 		return this.name;
 	}
-	
 
 	// 피드 상세 조회
 	@GetMapping("detail")
@@ -50,6 +51,40 @@ public class PostController {
 		FeedDTO feedDTO = postService.detail(postDTO);
 		model.addAttribute("dto", feedDTO);
 		return "feed/detail";
+	}
+
+	@GetMapping("search")
+	public String search(Pager pager, Model model, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+
+		if (memberDTO != null) {
+			pager.setCurrentUserNo(memberDTO.getUserNo());
+		}
+
+		pager.setPerPage(1000L);
+
+		List<FeedDTO> postList = postService.searchList(pager);
+
+		model.addAttribute("postList", postList);
+		model.addAttribute("pager", pager);
+
+		return "feed/search";
+	}
+	
+	@GetMapping("userSearch")
+	public String userSearch(Pager pager, Model model, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+
+		if (memberDTO != null) {
+			pager.setCurrentUserNo(memberDTO.getUserNo());
+		}
+
+		pager.setPerPage(1000L);
+
+		List<FeedDTO> postList = postService.searchList(pager);
+
+		model.addAttribute("postList", postList);
+		model.addAttribute("pager", pager);
+
+		return "feed/search";
 	}
 
 	// 2. 등록 폼 이동
