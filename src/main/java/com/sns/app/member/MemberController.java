@@ -1,6 +1,10 @@
 package com.sns.app.member;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,6 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sns.app.feed.FeedDTO;
+import com.sns.app.feed.post.PostDTO;
+import com.sns.app.feed.post.PostService;
+import com.sns.app.pager.Pager;
+
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -21,8 +30,26 @@ public class MemberController {
 	@Autowired
 	private MemberServiceImpl memberServiceImpl;
 	
+	@Autowired
+	private PostService postService;
+	
+
+	
 	@GetMapping("mypage")
-	public void mypage(HttpSession session, Model model) throws Exception{}
+	public void mypage(@AuthenticationPrincipal MemberDTO memberDTO, Model model, Pager pager) throws Exception{
+		
+		pager.setUserNo(memberDTO.getUserNo());
+		pager.setPerPage(5L);
+		List<FeedDTO> list = postService.myList(pager);
+		
+		model.addAttribute("myposts",list);
+		model.addAttribute("pager",pager);
+		model.addAttribute("member",memberDTO);
+		
+	}
+	
+	@GetMapping("myposts")
+	public void myposts(HttpSession session, Model model) throws Exception{}
 	
 	@GetMapping("update")
 	public void update(HttpSession session, Model model) throws Exception{
@@ -45,7 +72,7 @@ public class MemberController {
 			s = memberServiceImpl.detail(s);
 			session.setAttribute("member", s);
 		}
-		return "redirect:/feed/list";
+		return "redirect:/member/mypage";
 	}
 	
 	@GetMapping("join")

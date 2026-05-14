@@ -76,7 +76,7 @@
   	</collection>
   </resultMap>
   
-  
+ <select id="myList" parameterType="MemberDTO" ></select>
   
   
   
