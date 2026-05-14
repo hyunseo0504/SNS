@@ -18,6 +18,8 @@ public class Pager {
 	private Long perPage;
 
 	private Long startNum;
+	
+	private Long userNo;
 
 	private boolean pre = true;// true 이전블럭이 존재
 

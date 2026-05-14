@@ -43,6 +43,27 @@ public class FeedController {
 
 	}
 	
+	@GetMapping("mypage")
+	public String myPage(Pager pager, Model model, @AuthenticationPrincipal MemberDTO memberDTO, Long userNo) throws Exception {
+
+	    if (memberDTO != null) {
+	        pager.setCurrentUserNo(memberDTO.getUserNo());
+	        
+	        if (userNo == null) {
+	            userNo = memberDTO.getUserNo();
+	        }
+	    }
+
+	    pager.setUserNo(userNo);
+
+	    List<FeedDTO> postList = postService.myList(pager);
+
+	    model.addAttribute("postList", postList);
+	    model.addAttribute("userNo", userNo);
+
+	    return "member/mypage"; 
+	}
+	
 
 	@GetMapping("/detail/{type}/{feedNo}")
 	@ResponseBody
