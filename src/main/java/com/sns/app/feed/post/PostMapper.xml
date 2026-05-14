@@ -158,8 +158,6 @@
 				<result column="PROFILE_FILE_NAME" property="fileName" />
 				<result column="PROFILE_ORI_NAME" property="oriName" />
 			</association>
-
-
 			<collection property="roles" javaType="java.util.List"
 				ofType="RoleDTO">
 				<id column="ROLE_NO" property="roleNo" />
