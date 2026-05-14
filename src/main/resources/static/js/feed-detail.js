@@ -26,6 +26,21 @@ function getCommentList(feedNo) {
 		
 }
 
+function applyThumbState(button, likedByMe, thumbCount) {
+    if (!button) return;
+
+    const icon = button.querySelector('i');
+    if (icon) {
+        icon.classList.toggle('fas', !!likedByMe);
+        icon.classList.toggle('far', !likedByMe);
+    }
+
+    const countArea = button.querySelector('.like-count');
+    if (countArea) {
+        countArea.textContent = thumbCount ?? 0;
+    }
+}
+
 function bindCommentEvents(feedNo) {
     const commentBtn = document.getElementById("comment_add_btn");
     const commentInput = document.getElementById("comment_contents");
@@ -130,15 +145,28 @@ function submitReplyComment(commentNo, feedNo, parentDepth) {
     });
 }
 
-function likeComment(commentNo, button) {
-    const icon = button.querySelector('i');
-    if (!icon) return;
-
-    if (icon.classList.contains('far')) {
-        icon.classList.replace('far', 'fas');
-    } else {
-        icon.classList.replace('fas', 'far');
+async function likeComment(event, commentNo, button) {
+    if (event) {
+        event.stopPropagation();
     }
+
+    const formData = new FormData();
+    formData.append('commentNo', commentNo);
+
+    const response = await fetch('/comment/thumb', {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: formData
+    });
+
+    const result = await response.json();
+    if (result.result === -1) {
+        alert('로그인 후 좋아요를 누를 수 있습니다.');
+        location.href = '/member/login';
+        return;
+    }
+
+    applyThumbState(button, result.likedByMe, result.commentThumb);
 }
 
 function getStoryUserOrder() {
@@ -309,25 +337,35 @@ function openDetail(type, feedNo, userNo) {
     }
 }
 // 좋아요 기능
-function likePost(feedNo) {
-    // 이벤트 전파 방지 (카드를 클릭했을 때 모달이 뜨는 것과 별개로 동작하게 함)
-    event.stopPropagation();
-
-    const icon = event.currentTarget.querySelector('i');
-
-    // 클래스 토글 (빈 하트 <-> 채워진 하트)
-    if (icon.classList.contains('far')) {
-        icon.classList.replace('far', 'fas');
-    } else {
-        icon.classList.replace('fas', 'far');
+async function likePost(event, feedNo, button) {
+    if (event) {
+        event.stopPropagation();
     }
 
-    console.log(feedNo + "번 포스트 좋아요 클릭");
+    const formData = new FormData();
+    formData.append('feedNo', feedNo);
+
+    const response = await fetch('/post/thumb', {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: formData
+    });
+
+    const result = await response.json();
+    if (result.result === -1) {
+        alert('로그인 후 좋아요를 누를 수 있습니다.');
+        location.href = '/member/login';
+        return;
+    }
+
+    applyThumbState(button, result.likedByMe, result.feedThumb);
 }
 
 // 공유하기 기능
-function sharePost(feedNo) {
-    event.stopPropagation();
+function sharePost(event, feedNo) {
+    if (event) {
+        event.stopPropagation();
+    }
 
     // 임시: 주소창 복사 로직
     const dummy = document.createElement('input');
@@ -418,10 +456,11 @@ async function renderPost(feedNo) {
                 <div id="comment_display_list"></div> <!-- 댓글이 출력될 장소 -->
             </div>
             <div class="px-3 py-2 border-top d-flex align-items-center" style="gap: 20px;">
-                <div class="action-item" style="cursor: pointer;" onclick="likePost('${feedNo}')">
-                    <i class="far fa-heart fa-lg"></i>
+                <div class="action-item" style="cursor: pointer;" onclick="likePost(event, '${feedNo}', this)">
+                    <i class="${data.likedByMe ? 'fas' : 'far'} fa-heart fa-lg"></i>
+                    <span class="like-count ms-1 small">${data.feedThumb ?? 0}</span>
                 </div>
-                <div class="action-item" style="cursor: pointer;" onclick="sharePost('${feedNo}')">
+                <div class="action-item" style="cursor: pointer;" onclick="sharePost(event, '${feedNo}')">
                     <i class="far fa-paper-plane fa-lg"></i>
                 </div>
             </div>

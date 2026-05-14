@@ -1,9 +1,12 @@
 package com.sns.app.comment;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,8 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sns.app.member.MemberDTO;
 
-import jakarta.servlet.http.HttpSession;
-
 @Controller
 @RequestMapping("/comment/*")
 public class CommentController {
@@ -25,7 +26,11 @@ public class CommentController {
 
     // 댓글 리스트
     @GetMapping("list")
-    public void list(CommentDTO commentDTO, Model model) throws Exception {
+    public void list(CommentDTO commentDTO, Model model, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+
+        if (memberDTO != null) {
+            commentDTO.setCurrentUserNo(memberDTO.getUserNo());
+        }
 
         List<CommentDTO> ar = commentService.getCommentList(commentDTO);
 
@@ -76,6 +81,27 @@ public class CommentController {
 
         model.addAttribute("result", result);
 
+        return result;
+    }
+
+    @PostMapping("thumb")
+    @ResponseBody
+    public Map<String, Object> thumb(CommentDTO commentDTO, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+        Map<String, Object> result = new HashMap<>();
+
+        if (memberDTO == null) {
+            result.put("result", -1);
+            return result;
+        }
+
+        commentDTO.setCurrentUserNo(memberDTO.getUserNo());
+        commentDTO.setUserNo(memberDTO.getUserNo());
+
+        CommentDTO updated = commentService.toggleThumb(commentDTO);
+        result.put("result", 1);
+        result.put("commentThumb", updated.getCommentThumb());
+        result.put("likedByMe", updated.getLikedByMe());
+        result.put("commentNo", updated.getCommentNo());
         return result;
     }
 }

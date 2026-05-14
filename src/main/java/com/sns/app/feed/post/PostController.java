@@ -1,6 +1,7 @@
 package com.sns.app.feed.post;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sns.app.feed.FeedDTO;
-import com.sns.app.feed.FeedService;
 import com.sns.app.file.FileDTO;
 import com.sns.app.member.MemberDTO;
-import com.sns.app.pager.Pager;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +43,10 @@ public class PostController {
 
 	// 피드 상세 조회
 	@GetMapping("detail")
-	public String detail(PostDTO postDTO, Model model) throws Exception {
+	public String detail(PostDTO postDTO, Model model, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+		if (memberDTO != null) {
+			postDTO.setCurrentUserNo(memberDTO.getUserNo());
+		}
 		FeedDTO feedDTO = postService.detail(postDTO);
 		model.addAttribute("dto", feedDTO);
 		return "feed/detail";
@@ -63,7 +65,7 @@ public class PostController {
 
 	    postDTO.setUserNo(memberDTO.getUserNo());
 
-	    int result = postService.create(postDTO, attach);
+	    postService.create(postDTO, attach);
 	    return "redirect:/feed/list";
 	}
 
@@ -78,14 +80,14 @@ public class PostController {
 	// 피드 수정 처리
 	@PostMapping("update")
 	public String update(PostDTO postDTO, @RequestParam("attach") MultipartFile[] attach) throws Exception {
-		int result = postService.update(postDTO, attach);
+		postService.update(postDTO, attach);
 		return "redirect:/feed/list";
 	}
 
 	// 피드 삭제 처리
 	@PostMapping("delete")
 	public String delete(PostDTO postDTO) throws Exception {
-		int result = postService.delete(postDTO);
+		postService.delete(postDTO);
 		return "redirect:/feed/list";
 	}
 
@@ -100,8 +102,31 @@ public class PostController {
 
 	@GetMapping("getDetail")
 	@ResponseBody
-	public FeedDTO getDetail(PostDTO postDTO) throws Exception {
+	public FeedDTO getDetail(PostDTO postDTO, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+		if (memberDTO != null) {
+			postDTO.setCurrentUserNo(memberDTO.getUserNo());
+		}
 		return postService.detail(postDTO);
+	}
+
+	@PostMapping("thumb")
+	@ResponseBody
+	public Map<String, Object> thumb(PostDTO postDTO, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+		Map<String, Object> result = new HashMap<>();
+
+		if (memberDTO == null) {
+			result.put("result", -1);
+			return result;
+		}
+
+		postDTO.setCurrentUserNo(memberDTO.getUserNo());
+		postDTO.setUserNo(memberDTO.getUserNo());
+
+		FeedDTO feedDTO = postService.toggleThumb(postDTO);
+		result.put("result", 1);
+		result.put("feedThumb", feedDTO.getFeedThumb());
+		result.put("likedByMe", feedDTO.getLikedByMe());
+		return result;
 	}
 
 }

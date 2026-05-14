@@ -26,6 +26,7 @@ public class Pager {
 	private Long start;
 
 	private Long end;
+	private Long currentUserNo;
 
 	public Long getPage() {
 		if (page == null || page < 1) {

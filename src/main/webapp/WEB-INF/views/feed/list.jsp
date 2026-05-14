@@ -49,11 +49,17 @@
 							<div class="post-container">
 								<c:forEach items="${postList}" var="p">
 									<article class="post-card">
-										<div class="p-3">
-											<strong>${p.memberDTO.userNickname}</strong>
-
-											<div class="text-muted d-flex align-items-center gap-1">
-												<i class="fas fa-location-dot"></i> <span>${p.feedLocation}</span>
+										<div class="p-3 d-flex align-items-center gap-3">
+											<div class="profile-circle">
+												<img
+													src="${not empty p.memberDTO.profileDTO and not empty p.memberDTO.profileDTO.fileName ? '/files/member/'.concat(p.memberDTO.profileDTO.fileName) : '/img/default_user.avif'}"
+													onerror="this.src='/img/default_user.avif'"> </img>
+											</div>
+											<div class="user-info">
+												<strong class="d-block">${p.memberDTO.userNickname}</strong>
+												<div class="text-muted small">
+													<i class="fas fa-location-dot"></i> <span>${p.feedLocation}</span>
+												</div>
 											</div>
 										</div>
 										<div class="post-img-wrapper"
@@ -65,15 +71,16 @@
 
 										<div class="p-3 pb-0 d-flex gap-5">
 											<div class="action-item" style="cursor: pointer;"
-												onclick="likePost('${p.feedNo}')">
-												<i class="far fa-heart fa-lg"></i>
+												onclick="likePost(event, '${p.feedNo}', this)">
+												<i class="${p.likedByMe ? 'fas' : 'far'} fa-heart fa-lg"></i>
+												<span class="like-count ms-1 small">${empty p.feedThumb ? 0 : p.feedThumb}</span>
 											</div>
 											<div class="action-item" style="cursor: pointer;"
 												onclick="openDetail('post', '${p.feedNo}')">
 												<i class="far fa-comment fa-lg"></i>
 											</div>
 											<div class="action-item" style="cursor: pointer;"
-												onclick="sharePost('${p.feedNo}')">
+												onclick="sharePost(event, '${p.feedNo}')">
 												<i class="far fa-paper-plane fa-lg"></i>
 											</div>
 										</div>

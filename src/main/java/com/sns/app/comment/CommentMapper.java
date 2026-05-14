@@ -18,4 +18,14 @@ public interface CommentMapper {
 
     // 댓글 수정
     public int updateComment(CommentDTO commentDTO) throws Exception;
+
+    public Long countThumbByUser(CommentDTO commentDTO) throws Exception;
+
+    public int insertThumb(CommentDTO commentDTO) throws Exception;
+
+    public int deleteThumb(CommentDTO commentDTO) throws Exception;
+
+    public int syncThumbCount(CommentDTO commentDTO) throws Exception;
+
+    public CommentDTO getCommentDetail(CommentDTO commentDTO) throws Exception;
 }

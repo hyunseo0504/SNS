@@ -30,8 +30,9 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-1 flex-shrink-0">
-                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" onclick="likeComment(${c.commentNo}, this)">
-                        <i class="far fa-heart"></i>
+                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" onclick="likeComment(event, ${c.commentNo}, this)">
+                        <i class="${c.likedByMe ? 'fas' : 'far'} fa-heart"></i>
+                        <span class="like-count ms-1 small text-muted">${empty c.commentThumb ? 0 : c.commentThumb}</span>
                     </button>
                     <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" onclick="toggleReplyForm(${c.commentNo}, ${c.feedNo}, ${c.commentDepth})">답글</button>
                 </div>
@@ -66,8 +67,9 @@
                             </div>
 
                             <div class="d-flex align-items-center gap-1 flex-shrink-0">
-                                <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" onclick="likeComment(${r.commentNo}, this)">
-                                    <i class="far fa-heart"></i>
+                                <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" onclick="likeComment(event, ${r.commentNo}, this)">
+                                    <i class="${r.likedByMe ? 'fas' : 'far'} fa-heart"></i>
+                                    <span class="like-count ms-1 small text-muted">${empty r.commentThumb ? 0 : r.commentThumb}</span>
                                 </button>
                             </div>
                         </div>
