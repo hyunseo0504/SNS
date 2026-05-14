@@ -5,7 +5,7 @@
   
   <mapper namespace="com.sns.app.member.MemberMapper">
   
-  <select id="search" resultType="MemberDTO" parameterType="String">
+  <select id="search" resultMap="detailResult" parameterType="String">
     SELECT * FROM "USER"
     LEFT JOIN "USER_IMG"
     USING("USER_NO")
