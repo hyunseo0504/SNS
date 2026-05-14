@@ -38,7 +38,7 @@ public class PostService implements FeedService {
     
     public List<FeedDTO> myList(Pager pager) throws Exception {
     	
-        pager.makePageNum(postMapper.getUserPostCount(pager));
+        pager.makePageNum(postMapper.getMyCount(pager));
         
         pager.makeStartNum();
         
