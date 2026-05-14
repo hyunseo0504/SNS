@@ -24,7 +24,7 @@ public interface PostMapper extends FeedMapper {
 
 	public int syncThumbCount(FeedDTO feedDTO) throws Exception;
 	
-	public Long getUserPostCount(Pager pager) throws Exception;
+	public Long getMyCount(Pager pager) throws Exception;
 	
 	public List<FeedDTO> myList(Pager pager) throws Exception;
 
