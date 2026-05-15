@@ -39,6 +39,21 @@ public class FeedController {
 		}
 
 		List<FeedDTO> storyList = storyService.list(new Pager());
+		// 현재 사용자가 있다면, 해당 사용자의 스토리를 리스트 맨 앞으로 이동
+		if (memberDTO != null && storyList != null) {
+			for (int i = 0; i < storyList.size(); i++) {
+				FeedDTO s = storyList.get(i);
+				if (s != null && s.getUserNo() != null && s.getUserNo().equals(memberDTO.getUserNo())) {
+					// 이미 맨 앞이면 변경 불필요
+					if (i != 0) {
+						FeedDTO me = storyList.remove(i);
+						storyList.add(0, me);
+					}
+					break;
+				}
+			}
+		}
+
 		List<FeedDTO> postList = postService.list(pager);
 
 		model.addAttribute("storyList", storyList);
