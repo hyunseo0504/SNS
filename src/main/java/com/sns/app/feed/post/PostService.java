@@ -15,7 +15,10 @@ import com.sns.app.feed.FeedDTO;
 import com.sns.app.feed.FeedService;
 import com.sns.app.file.FileDTO;
 import com.sns.app.file.FileManager;
+import com.sns.app.member.MemberDTO;
 import com.sns.app.pager.Pager;
+import com.sns.app.push.PushDTO;
+import com.sns.app.push.PushService;
 
 @Service
 @Transactional
@@ -23,6 +26,9 @@ public class PostService implements FeedService {
 	
 	@Autowired
 	private Pusher pusher;
+	
+	@Autowired
+    private PushService pushService;
 
     @Autowired
     private PostMapper postMapper;
@@ -63,12 +69,46 @@ public class PostService implements FeedService {
         return postMapper.detail(feedDTO);
     }
 
-    public FeedDTO toggleThumb(FeedDTO feedDTO) throws Exception {
+    @Transactional
+    public FeedDTO toggleThumb(FeedDTO feedDTO, MemberDTO memberDTO) throws Exception {
+        // 1. 좋아요 상태 확인
         Long thumbCount = postMapper.countThumbByUser(feedDTO);
+        
         if (thumbCount != null && thumbCount > 0) {
+            // 좋아요 취소
             postMapper.deleteThumb(feedDTO);
         } else {
+            // 좋아요 추가
             postMapper.insertThumb(feedDTO);
+
+            // --- 실시간 및 DB 알림 로직 추가 ---
+            try {
+                // 1. 알림 데이터 생성 (PushDTO 활용)
+                PushDTO push = new PushDTO();
+                
+                // 받는 사람: 게시글 작성자 (feedDTO.getUserNo())
+                push.setReceiverNo(feedDTO.getUserNo()); 
+                
+                // 보낸 사람: 현재 로그인 유저 (memberDTO.getUserNo())
+                push.setSenderNo(memberDTO.getUserNo());
+                
+                // 데이터 세팅
+                push.setPushType("LIKE");
+                push.setPostNo(feedDTO.getFeedNo()); // 클릭 시 이동할 게시글 번호
+                
+                String senderName = (memberDTO != null) ? memberDTO.getUserNickname() : "누군가";
+                push.setPushMsg(senderName + "님이 회원님의 게시물을 좋아합니다.");
+
+                if (feedDTO.getUserNo() != null && !feedDTO.getUserNo().equals(memberDTO.getUserNo())) {
+                    pushService.sendPush(push);
+                } else {
+                    System.out.println("본인 게시글이므로 알림을 발송하지 않습니다.");
+                }
+                
+            } catch (Exception e) {
+                // 알림 실패가 "좋아요" 자체에 영향을 주지 않도록 예외 처리
+                System.err.println("알림 처리 실패: " + e.getMessage());
+            }
         }
 
         postMapper.syncThumbCount(feedDTO);
@@ -125,6 +165,5 @@ public class PostService implements FeedService {
         return postMapper.fileDetail(fileDTO);
     }
 
-    
 
 }

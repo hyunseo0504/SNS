@@ -155,9 +155,15 @@ public class PostController {
 		}
 
 		postDTO.setCurrentUserNo(memberDTO.getUserNo());
-		postDTO.setUserNo(memberDTO.getUserNo());
+		FeedDTO originalPost = postService.detail(postDTO);
+		
+		if(originalPost != null) {
+		    // FeedDTO(또는 상속받은 PostDTO)의 userNo 필드에 작성자 번호 주입
+		    postDTO.setUserNo(originalPost.getUserNo()); 
+		}
+		
 
-		FeedDTO feedDTO = postService.toggleThumb(postDTO);
+		FeedDTO feedDTO = postService.toggleThumb(postDTO,memberDTO);
 		result.put("result", 1);
 		result.put("feedThumb", feedDTO.getFeedThumb());
 		result.put("likedByMe", feedDTO.getLikedByMe());
