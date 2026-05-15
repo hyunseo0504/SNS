@@ -263,7 +263,7 @@ async function loadStoryByUser(userNo, selectedFeedNo, stepDirection = 1) {
                     </div>
                     <img src="${imgPath}" onerror="this.src='/img/default_user.avif'">
                     <div class="story-controls">
-                        <button type="button" class="btn btn-sm btn-icon story-like-btn" onclick="likePost(event, '${story.feedNo}', this)"><i class="${story.likedByMe ? 'fas' : 'far'} fa-heart"></i></button>
+                        <button type="button" class="btn btn-sm btn-icon story-like-btn" onclick="likePost(event, '${story.feedNo}', this, 'story')"><i class="${story.likedByMe ? 'fas' : 'far'} fa-heart"></i></button>
                         <button type="button" class="btn btn-sm btn-icon story-share-btn" onclick="sharePost(event, '${story.feedNo}', 'story')"><i class="far fa-paper-plane"></i></button>
                     </div>
                 </div>
@@ -351,13 +351,13 @@ function openDetail(type, feedNo, userNo) {
     }
 }
 
-async function likePost(event, feedNo, button) {
+async function likePost(event, feedNo, button, feedType = null) {
     if (event) event.stopPropagation();
     const formData = new FormData();
     formData.append('feedNo', feedNo);
 
     // 스토리 모드인지 확인: 버튼이 story-carousel 내부에 있으면 스토리로 간주
-    const isStory = !!button && !!button.closest && button.closest('.story-carousel');
+    const isStory = feedType === 'story' || (!!button && !!button.closest && button.closest('.story-carousel'));
     const url = isStory ? '/story/thumb' : '/post/thumb';
 
     let result;
@@ -523,7 +523,7 @@ async function renderStory(feedNo, userNo) {
                 </div>
                 <img src="${imgPath}" onerror="this.src='/img/default_user.avif'">
                 <div class="story-controls">
-                    <button type="button" class="btn btn-sm btn-icon story-like-btn" onclick="likePost(event, '${feedNo}', this)">
+                    <button type="button" class="btn btn-sm btn-icon story-like-btn" onclick="likePost(event, '${feedNo}', this, 'story')">
                         <i class="${data.likedByMe ? 'fas' : 'far'} fa-heart"></i>
                         <span class="like-count ms-1 small">${data.feedThumb ?? 0}</span>
                     </button>

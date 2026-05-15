@@ -1,7 +1,5 @@
 package com.sns.app.feed.story;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -20,11 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.sns.app.feed.FeedDTO;
 import com.sns.app.file.FileDTO;
-import com.sns.app.pager.Pager;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Controller
 @RequestMapping("/story/*")
 @CrossOrigin("*")
@@ -58,7 +52,7 @@ public class StoryController {
 			storyDTO.setUserNo(memberDTO.getUserNo());
 		}
 
-		int result = storyService.create(storyDTO, attach);
+		storyService.create(storyDTO, attach);
 
 		return "redirect:/feed/list";
 	}
@@ -74,7 +68,7 @@ public class StoryController {
 	// 5. 삭제 처리
 	@PostMapping("delete")
 	public String delete(StoryDTO storyDTO) throws Exception {
-		int result = storyService.delete(storyDTO);
+		storyService.delete(storyDTO);
 		return "redirect:/feed/list";
 	}
 
@@ -105,19 +99,17 @@ public class StoryController {
 		}
 
 		feedDTO.setCurrentUserNo(memberDTO.getUserNo());
-		feedDTO.setUserNo(memberDTO.getUserNo());
 
-		FeedDTO updated = null;
 		try {
-			updated = storyService.toggleThumb(feedDTO);
+			FeedDTO updated = storyService.toggleThumb(feedDTO, memberDTO);
+			result.put("result", 1);
+			result.put("feedThumb", updated.getFeedThumb());
+			result.put("likedByMe", updated.getLikedByMe());
 		} catch (Exception e) {
-			log.error("StoryController.thumb - toggleThumb failed for feedNo=" + feedDTO.getFeedNo(), e);
+			System.err.println("StoryController.thumb - toggleThumb failed for feedNo=" + feedDTO.getFeedNo() + ": " + e.getMessage());
 			result.put("result", -2);
 			return result;
 		}
-		result.put("result", 1);
-		result.put("feedThumb", updated.getFeedThumb());
-		result.put("likedByMe", updated.getLikedByMe());
 		// done
 		return result;
 	}

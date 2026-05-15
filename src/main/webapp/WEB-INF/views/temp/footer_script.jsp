@@ -30,16 +30,14 @@
 
 <script src="/js/sb-admin-2.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
 <sec:authorize access="isAuthenticated()">
     <script>
         (function() {
-            // 1. Spring Security Principal에서 안전하게 번호 추출
             var rawUserNo = "<sec:authentication property='principal.userNo' />";
-
-            console.log("==============================");
-            console.log("실시간 알림 시스템 가동 (UserNo: " + rawUserNo + ")");
 
             if (rawUserNo && rawUserNo !== "" && rawUserNo !== "anonymousUser") {
                 try {
@@ -47,17 +45,33 @@
                         cluster: 'ap3'
                     });
 
-                    // 2. '내 번호'가 붙은 전용 채널 구독
                     const myChannelName = 'sns-alarm-' + rawUserNo;
                     const channel = pusher.subscribe(myChannelName);
 
-                    console.log("구독 채널:", myChannelName);
-
+                    // ✅ 2. 알림 발생 시 실행될 로직 수정
                     channel.bind('new-post', function(data) {
                         if (data.message) {
-                            alert('🔔 실시간 알림: ' + data.message);
+                            // 확인 버튼 없는 토스트 설정
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',      // 우측 상단
+                                showConfirmButton: false, // 확인 버튼 숨김
+                                timer: 3000,              // 3초 후 자동 소멸
+                                timerProgressBar: true,   // 하단 진행바 표시
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                            });
+
+                            // 토스트 띄우기
+                            Toast.fire({
+                                icon: 'info', // 정보 아이콘
+                                title: '새로운 알림',
+                                text: data.message
+                            });
                             
-                            // 만약 push.js의 목록 갱신 함수가 있다면 호출
+                            // 상단바 목록 실시간 갱신
                             if (typeof loadAlarmList === "function") {
                                 loadAlarmList();
                             }
@@ -65,14 +79,13 @@
                     });
 
                     pusher.connection.bind('connected', function() {
-                        console.log('Pusher 연결 성공!');
+                        console.log('Pusher 연결 성공! (UserNo: ' + rawUserNo + ')');
                     });
                     
                 } catch (err) {
-                    console.error("Pusher 초기화 중 오류 발생:", err);
+                    console.error("Pusher 초기화 오류:", err);
                 }
             }
-            console.log("==============================");
         })();
     </script>
 </sec:authorize>
