@@ -160,10 +160,12 @@
 		FROM "POST" P0
 		LEFT JOIN
 		"POST_IMG" PI ON P0."FEED_NO" = PI."FEED_NO"
-		LEFT JOIN "POST_LIKE" PL ON
+		LEFT JOIN "POST_LIKE" PL
+		ON
 		P0."FEED_NO" = PL."FEED_NO"
 		AND PL."USER_NO" = #{currentUserNo}
-		LEFT JOIN
+		LEFT
+		JOIN
 		"USER" S ON
 		P0."USER_NO" = S."USER_NO"
 		LEFT JOIN LATERAL (
@@ -314,9 +316,9 @@
 		)
 		WHERE "FEED_NO" = #{feedNo}
 	</update>
-	<insert id="createFile" parameterType="PostFileDTO">
-		INSERT INTO "POST_IMG"
-		VALUES (DEFAULT,#{fileName}, #{oriName}, #{feedNo})
+	<insert id="createFile" parameterType="FileDTO">
+		INSERT INTO "POST_IMG" ("FEED_NO", "FILE_NAME", "ORI_NAME")
+		VALUES (#{feedNo}, #{fileName}, #{oriName})
 	</insert>
 	<delete id="delete" parameterType="PostDTO">
 		DELETE FROM "POST"

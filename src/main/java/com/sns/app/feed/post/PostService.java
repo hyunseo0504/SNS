@@ -1,5 +1,6 @@
 package com.sns.app.feed.post;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,29 +116,32 @@ public class PostService implements FeedService {
         return postMapper.detail(feedDTO);
     }
 
-    @Override
-    public int create(FeedDTO feedDTO, MultipartFile[] attach) throws Exception {
-        int result = postMapper.create(feedDTO);
+    @Transactional
+    public int create(PostDTO postDTO, MultipartFile[] attach) throws Exception {
+        // 1. 부모 테이블(FEED) 및 자식 테이블(POST) 데이터 저장
+        // Mapper의 create(feedDTO)가 실행되면서 postDTO의 정보가 저장됨
+        int result = postMapper.create(postDTO);
 
-        if (attach == null) {
-            return result;
-        }
+        // 2. 파일 처리 및 저장
+        if (attach != null) {
+            for (MultipartFile file : attach) {
+                if (file.isEmpty()) continue;
 
-        for (MultipartFile f : attach) {
-            if (f.isEmpty()) {
-            	continue;
+                // 파일을 Base64 문자열로 변환
+                byte[] fileBytes = file.getBytes();
+                String base64String = "data:" + file.getContentType() + ";base64," 
+                                      + Base64.getEncoder().encodeToString(fileBytes);
+
+                // PostFileDTO 생성 및 데이터 세팅
+                PostFileDTO fileDTO = new PostFileDTO();
+                fileDTO.setFeedNo(postDTO.getFeedNo()); // 생성된 피드 번호 사용
+                fileDTO.setOriName(file.getOriginalFilename());
+                fileDTO.setFileName(base64String); // fileName 컬럼에 Base64 주입
+
+                // Mapper의 createFile 호출 (DB에 INSERT)
+                postMapper.createFile(fileDTO);
             }
-
-            String fileName = fileManager.fileSave(name, f);
-
-            PostFileDTO fileDTO = new PostFileDTO();
-            fileDTO.setFeedNo(feedDTO.getFeedNo()); 
-            fileDTO.setOriName(f.getOriginalFilename());
-            fileDTO.setFileName(fileName);
-
-            result = postMapper.createFile(fileDTO);
         }
-
         return result;
     }
 
@@ -164,6 +168,12 @@ public class PostService implements FeedService {
     public FileDTO fileDetail(FileDTO fileDTO) throws Exception {
         return postMapper.fileDetail(fileDTO);
     }
+
+	@Override
+	public int create(FeedDTO feedDTO, MultipartFile[] attach) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 
 }

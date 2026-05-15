@@ -1,5 +1,7 @@
 package com.sns.app.feed.post;
 
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,12 +100,15 @@ public class PostController {
 	                     @RequestParam("attach") MultipartFile[] attach,
 	                     @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
 
+	    // 현재 로그인한 사용자 번호 세팅
 	    postDTO.setUserNo(memberDTO.getUserNo());
 
+	    // 서비스 호출
 	    postService.create(postDTO, attach);
+
 	    return "redirect:/feed/list";
 	}
-
+	
 	// 피드 수정 폼 이동
 	@GetMapping("update")
 	public String update(PostDTO postDTO, Model model) throws Exception {
