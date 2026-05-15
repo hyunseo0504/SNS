@@ -353,23 +353,38 @@ function openDetail(type, feedNo, userNo) {
 
 async function likePost(event, feedNo, button) {
     if (event) event.stopPropagation();
-
     const formData = new FormData();
     formData.append('feedNo', feedNo);
 
-    const response = await fetch('/post/thumb', {
-        method: 'POST',
-        credentials: 'same-origin',
-        body: formData
-    });
+    // 스토리 모드인지 확인: 버튼이 story-carousel 내부에 있으면 스토리로 간주
+    const isStory = !!button && !!button.closest && button.closest('.story-carousel');
+    const url = isStory ? '/story/thumb' : '/post/thumb';
 
-    const result = await response.json();
+    let result;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: formData
+        });
+
+        if (!response.ok) {
+            console.error('likePost: network error', response.status, response.statusText);
+            return;
+        }
+
+        result = await response.json();
+    } catch (e) {
+        console.error('likePost: fetch failed', e);
+        return;
+    }
     if (result.result === -1) {
         alert('로그인 후 좋아요를 누를 수 있습니다.');
         location.href = '/member/login';
         return;
     }
 
+    // 스토리에서는 좋아요 수를 표시하지 않으므로 count 전달은 무시해도 됨
     applyThumbState(button, result.likedByMe, result.feedThumb);
     syncListThumbState(feedNo, result.likedByMe, result.feedThumb);
 }

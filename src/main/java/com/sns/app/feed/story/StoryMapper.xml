@@ -56,6 +56,7 @@
 		resultMap="detailResult">
 		SELECT
 		S.*,
+		CASE WHEN PL."USER_NO" IS NULL THEN FALSE ELSE TRUE END AS "LIKED_BY_ME",
 		U."USER_NO",
 		U."USER_NICKNAME",
 		UIP."FILE_NO" AS "PROFILE_FILE_NO",
@@ -66,6 +67,7 @@
 		SI."FILE_NAME",
 		SI."ORI_NAME"
 		FROM "STORY" S
+		LEFT JOIN "STORY_LIKE" PL ON S."FEED_NO" = PL."FEED_NO" AND PL."USER_NO" = #{currentUserNo}
 		LEFT JOIN
 		"STORY_IMG" SI
 		ON S."FEED_NO" = SI."FEED_NO"
@@ -92,6 +94,7 @@
 		resultMap="detailResult">
 		SELECT
 		S.*,
+		CASE WHEN PL."USER_NO" IS NULL THEN FALSE ELSE TRUE END AS "LIKED_BY_ME",
 		U."USER_NICKNAME",
 		UIP."FILE_NO" AS "PROFILE_FILE_NO",
 		UIP."FILE_NAME" AS "PROFILE_FILE_NAME",
@@ -100,6 +103,7 @@
 		SI."FILE_NAME",
 		SI."ORI_NAME"
 		FROM "STORY" S
+		LEFT JOIN "STORY_LIKE" PL ON S."FEED_NO" = PL."FEED_NO" AND PL."USER_NO" = #{currentUserNo}
 		LEFT JOIN "STORY_IMG" SI
 		ON S."FEED_NO" =
 		SI."FEED_NO"
@@ -127,6 +131,7 @@
 		<result column="FEED_DATE" property="feedDate" />
 		<result column="USER_NO" property="userNo" />
 		<result column="FEED_THUMB" property="feedThumb" />
+		<result column="LIKED_BY_ME" property="likedByMe" />
 
 		<association property="memberDTO" javaType="MemberDTO">
 			<result column="USER_NO" property="userNo" />
@@ -189,6 +194,37 @@
 		SELECT * FROM "STORY_IMG"
 		WHERE "FILE_NO"=#{fileNo}
 	</select>
+
+	<select id="countThumbByUser" parameterType="FeedDTO" resultType="Long">
+		SELECT COUNT(*)
+		FROM "STORY_LIKE"
+		WHERE "FEED_NO" = #{feedNo}
+		AND "USER_NO" = #{currentUserNo}
+	</select>
+
+	<insert id="insertThumb" parameterType="FeedDTO">
+		INSERT INTO "STORY_LIKE"
+		("FEED_NO", "USER_NO", "LIKE_DATE")
+		VALUES (#{feedNo}, #{currentUserNo}, NOW())
+	</insert>
+
+	<delete id="deleteThumb" parameterType="FeedDTO">
+		DELETE FROM "STORY_LIKE"
+		WHERE "FEED_NO" = #{feedNo}
+		AND "USER_NO" = #{currentUserNo}
+	</delete>
+
+	<update id="syncThumbCount" parameterType="FeedDTO">
+		UPDATE "STORY"
+		SET
+		"FEED_THUMB" = (
+		SELECT COUNT(*)
+		FROM "STORY_LIKE"
+		WHERE "FEED_NO" =
+		#{feedNo}
+		)
+		WHERE "FEED_NO" = #{feedNo}
+	</update>
 
 
 

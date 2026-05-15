@@ -96,9 +96,30 @@ public class StoryService implements FeedService {
 		return storyMapper.detail(feedDTO);
 	}
 
+	@Transactional
+	public FeedDTO toggleThumb(FeedDTO feedDTO) throws Exception {
+		Long thumbCount = storyMapper.countThumbByUser(feedDTO);
+		if (thumbCount != null && thumbCount > 0) {
+			storyMapper.deleteThumb(feedDTO);
+		} else {
+			storyMapper.insertThumb(feedDTO);
+		}
+
+		storyMapper.syncThumbCount(feedDTO);
+		return storyMapper.detail(feedDTO);
+	}
+
 	public List<FeedDTO> listByUser(Long userNo) throws Exception {
 		FeedDTO feedDTO = new FeedDTO();
 		feedDTO.setUserNo(userNo);
+		return storyMapper.listByUser(feedDTO);
+	}
+
+	// Overload to accept currentUserNo so SQL can use currentUserNo for LIKED_BY_ME
+	public List<FeedDTO> listByUser(Long userNo, Long currentUserNo) throws Exception {
+		FeedDTO feedDTO = new FeedDTO();
+		feedDTO.setUserNo(userNo);
+		feedDTO.setCurrentUserNo(currentUserNo);
 		return storyMapper.listByUser(feedDTO);
 	}
 

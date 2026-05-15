@@ -148,15 +148,15 @@ public class FeedController {
 			feedDTO.setCurrentUserNo(memberDTO.getUserNo());
 		}
 
-		if ("story".equalsIgnoreCase(type)) {
+		if ("story".equals(type)) {
 			return storyService.detail(feedDTO);
 		}
 
-		if ("post".equalsIgnoreCase(type)) {
+		if ("post".equals(type)) {
 			return postService.detail(feedDTO);
 		}
 
-		throw new IllegalArgumentException("Unsupported feed type: " + type);
+		throw new Exception();
 	}
 
 	@GetMapping("userSearch")
@@ -189,7 +189,10 @@ public class FeedController {
 
 		// 3. 결과 전달
 		model.addAttribute("postList", postList);
-		model.addAttribute("userNo", userNo);
+		// member/mypage 뷰는 MemberController에서 사용하는 `myposts`와 `pager`를 참조하므로 호환을 위해 동일한 속성도 추가
+		model.addAttribute("myposts", postList);
+		model.addAttribute("pager", pager);
+		model.addAttribute("searchedUser", searchedUser);
 
 		return "member/mypage";
 	}

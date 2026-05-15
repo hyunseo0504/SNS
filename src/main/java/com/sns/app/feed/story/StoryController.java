@@ -93,4 +93,32 @@ public class StoryController {
 	    // 기존 detail 로직 재활용
 	    return storyService.detail(storyDTO); 
 	}
+
+	@PostMapping("thumb")
+	@ResponseBody
+	public java.util.Map<String, Object> thumb(FeedDTO feedDTO, @AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+		java.util.Map<String, Object> result = new java.util.HashMap<>();
+
+		if (memberDTO == null) {
+			result.put("result", -1);
+			return result;
+		}
+
+		feedDTO.setCurrentUserNo(memberDTO.getUserNo());
+		feedDTO.setUserNo(memberDTO.getUserNo());
+
+		FeedDTO updated = null;
+		try {
+			updated = storyService.toggleThumb(feedDTO);
+		} catch (Exception e) {
+			log.error("StoryController.thumb - toggleThumb failed for feedNo=" + feedDTO.getFeedNo(), e);
+			result.put("result", -2);
+			return result;
+		}
+		result.put("result", 1);
+		result.put("feedThumb", updated.getFeedThumb());
+		result.put("likedByMe", updated.getLikedByMe());
+		// done
+		return result;
+	}
 }
