@@ -22,7 +22,7 @@
 						<div class="col-lg-10">
 							<div class="search-hero">
 								<div class="search-title">Search Contents</div>
-								
+
 								<form action="/post/search" method="get" class="search-form">
 									<!-- 검색 조건 선택 (kind) -->
 									<select name="kind" class="search-kind-select">
@@ -32,8 +32,9 @@
 
 									<!-- 입력 그룹 -->
 									<div class="search-input-group">
-										<i class="fas fa-search"></i>
-										<input type="text" name="search" value="${pager.search}" class="search-input" placeholder="검색어를 입력하세요">
+										<i class="fas fa-search"></i> <input type="text" name="search"
+											value="${pager.search}" class="search-input"
+											placeholder="검색어를 입력하세요">
 									</div>
 
 									<button type="submit" class="search-submit">검색</button>
@@ -44,10 +45,11 @@
 								<c:when test="${not empty postList}">
 									<div class="search-gallery">
 										<c:forEach items="${postList}" var="p">
-											<a class="search-tile" href="/feed/detail/post/${p.feedNo}" title="${p.memberDTO.userNickname}">
-												<c:choose>
+											<a class="search-tile" href="/feed/detail/post/${p.feedNo}"
+												title="${p.memberDTO.userNickname}"> <c:choose>
 													<c:when test="${not empty p.list}">
-														<img src="${'/files/post/'.concat(p.list[0].fileName)}" alt="post image"
+														<img src="/files/post/${p.list[0].fileName}"
+															alt="post image"
 															onerror="this.src='/img/default_post.png'">
 													</c:when>
 													<c:otherwise>
@@ -59,9 +61,7 @@
 									</div>
 								</c:when>
 								<c:otherwise>
-									<div class="search-empty">
-										검색 결과가 없습니다.
-									</div>
+									<div class="search-empty">검색 결과가 없습니다.</div>
 								</c:otherwise>
 							</c:choose>
 						</div>

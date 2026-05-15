@@ -15,7 +15,7 @@ import com.sns.app.file.FileManager;
 import com.sns.app.pager.Pager;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
+@Transactional
 public class StoryService implements FeedService {
 
 	@Autowired
@@ -96,7 +96,6 @@ public class StoryService implements FeedService {
 		return storyMapper.detail(feedDTO);
 	}
 
-	@Transactional
 	public FeedDTO toggleThumb(FeedDTO feedDTO) throws Exception {
 		Long thumbCount = storyMapper.countThumbByUser(feedDTO);
 		if (thumbCount != null && thumbCount > 0) {

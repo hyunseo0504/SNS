@@ -1,12 +1,16 @@
 package com.sns.app.feed.post;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.pusher.rest.Pusher;
 import com.sns.app.feed.FeedDTO;
 import com.sns.app.feed.FeedService;
 import com.sns.app.file.FileDTO;
@@ -14,8 +18,11 @@ import com.sns.app.file.FileManager;
 import com.sns.app.pager.Pager;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
+@Transactional
 public class PostService implements FeedService {
+	
+	@Autowired
+	private Pusher pusher;
 
     @Autowired
     private PostMapper postMapper;
@@ -56,7 +63,6 @@ public class PostService implements FeedService {
         return postMapper.detail(feedDTO);
     }
 
-    @Transactional
     public FeedDTO toggleThumb(FeedDTO feedDTO) throws Exception {
         Long thumbCount = postMapper.countThumbByUser(feedDTO);
         if (thumbCount != null && thumbCount > 0) {
@@ -119,5 +125,6 @@ public class PostService implements FeedService {
         return postMapper.fileDetail(fileDTO);
     }
 
+    
 
 }

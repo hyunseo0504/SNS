@@ -72,7 +72,11 @@ public class FeedController {
 
 	@GetMapping("/detail/story/user/{userNo}")
 	@ResponseBody
-	public List<FeedDTO> getStoryListByUser(@PathVariable("userNo") Long userNo) throws Exception {
+	public List<FeedDTO> getStoryListByUser(@PathVariable("userNo") Long userNo,
+			@AuthenticationPrincipal MemberDTO memberDTO) throws Exception {
+		if (memberDTO != null) {
+			return storyService.listByUser(userNo, memberDTO.getUserNo());
+		}
 		return storyService.listByUser(userNo);
 	}
 
@@ -192,7 +196,7 @@ public class FeedController {
 		// member/mypage 뷰는 MemberController에서 사용하는 `myposts`와 `pager`를 참조하므로 호환을 위해 동일한 속성도 추가
 		model.addAttribute("myposts", postList);
 		model.addAttribute("pager", pager);
-		model.addAttribute("searchedUser", searchedUser);
+
 
 		return "member/mypage";
 	}
