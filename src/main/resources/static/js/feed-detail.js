@@ -240,14 +240,14 @@ async function loadStoryByUser(userNo, selectedFeedNo, stepDirection = 1) {
 
     const slides = stories.map((story) => {
         const imgPath = story.list?.[0]?.fileName
-            ? `/files/story/${story.list[0].fileName}`
+            ? story.list[0].fileName // [수정] DB의 Base64 데이터를 그대로 사용
             : '/img/default_user.avif';
-        
+
         // [수정] 프로필 이미지 경로 생성 로직 개선
         const profileImgPath = story.memberDTO?.profileDTO?.fileName
             ? `/files/member/${story.memberDTO.profileDTO.fileName}`
             : '/img/default_user.avif';
-            
+
         const ownerName = story.memberDTO?.userNickname || story.memberDTO?.userNo || '';
 
         return `
@@ -410,7 +410,7 @@ function sharePost(event, feedNo, type = 'post') {
         // CSS 파일이나 인라인에 적용된 z-index 값을 가져옴 (없으면 기본값 계산)
         const detailZIndex = window.getComputedStyle(detailModal).zIndex;
         const parsedZIndex = parseInt(detailZIndex, 10);
-        
+
         if (!isNaN(parsedZIndex)) {
             // 상세 모달보다 무조건 10만큼 더 위에 오도록 동적 주입
             shareModal.style.setProperty('z-index', (parsedZIndex + 10).toString(), 'important');
@@ -461,9 +461,9 @@ function sharePost(event, feedNo, type = 'post') {
 
 // 스크립트 하단 window.onclick 이벤트에 shareModal 바깥 클릭 시 닫히는 로직 추가
 const originalWindowClick = window.onclick;
-window.onclick = (e) => { 
+window.onclick = (e) => {
     if (originalWindowClick) originalWindowClick(e); // 기존 윈도우 클릭 이벤트 유지
-    if (e.target == shareModal) closeShareModal(); 
+    if (e.target == shareModal) closeShareModal();
 };
 
 // ESC 키 입력 시 닫히는 로직 추가
@@ -499,10 +499,12 @@ async function renderStory(feedNo, userNo) {
 
         const response = await fetch(`/feed/api/story/${feedNo}`);
         const data = await response.json();
-        
-        const imgPath = data.list?.[0]?.fileName ? `/files/story/${data.list[0].fileName}` : '/img/default_user.avif';
+
+        const imgPath = data.list?.[0]?.fileName
+            ? data.list[0].fileName
+            : '/img/default_user.avif';
         const ownerName = data.memberDTO?.userNickname || data.memberDTO?.userNo || '';
-        
+
         // 프로필 이미지 경로 안전하게 생성 (여러 구조에 대응)
         const profileFileName = data.memberDTO?.profileDTO?.fileName
             || data.profileDTO?.fileName
@@ -531,9 +533,9 @@ async function renderStory(feedNo, userNo) {
                 </div>
             </div>
         `;
-    } catch (e) { 
+    } catch (e) {
         console.error("스토리 로드 실패:", e);
-        closeModal(); 
+        closeModal();
     }
 }
 
@@ -559,9 +561,9 @@ async function renderPost(feedNo) {
 
         const images = data.list && data.list.length > 0
             ? data.list.map((fileDTO) => `
-                <div class="post-carousel-slide">
-                    <img src="/files/post/${fileDTO.fileName}" class="post-detail-img" onerror="this.src='/img/default_user.avif'">
-                </div>
+		            <div class="post-carousel-slide">
+		                <img src="${fileDTO.fileName}" class="post-detail-img" onerror="this.src='/img/default_user.avif'">
+		            </div>
             `).join('')
             : `<div class="post-carousel-slide"><img src="/img/default_user.avif" class="post-detail-img"></div>`;
 
