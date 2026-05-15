@@ -1,5 +1,6 @@
 package com.sns.app.feed.story;
 
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,19 +56,21 @@ public class StoryService implements FeedService {
 			return result;
 		}
 
-		// 2. 파일을 HDD에 저장
+		// 2. 첨부 파일을 Base64 문자열로 변환해서 DB에 저장
 		for (MultipartFile f : attach) {
 			if (f.isEmpty()) {
 				continue;
 			}
 
-			String fileName = fileManager.fileSave(name, f);
+			byte[] fileBytes = f.getBytes();
+			String base64String = "data:" + f.getContentType() + ";base64,"
+					+ Base64.getEncoder().encodeToString(fileBytes);
 
 			// 3. 파일의 정보들을 DB에 저장
 			StoryFileDTO fileDTO = new StoryFileDTO();
             fileDTO.setFeedNo(feedDTO.getFeedNo()); 
             fileDTO.setOriName(f.getOriginalFilename());
-            fileDTO.setFileName(fileName);
+			fileDTO.setFileName(base64String);
 
 			result = storyMapper.createFile(fileDTO);
 		}
@@ -80,10 +83,12 @@ public class StoryService implements FeedService {
 		// 1. 파일명 및 정보 조회를 위해 상세 정보 가져오기
 		feedDTO = storyMapper.detail(feedDTO);
 
-		// 2. HDD에서 관련 파일 삭제
+		// 2. 기존 HDD 저장 데이터만 삭제하고, Base64 데이터는 그대로 DB 삭제만 수행
 		if (feedDTO.getList() != null) {
 			for (FileDTO fileDTO : feedDTO.getList()) {
-				fileManager.fileDelete(name, fileDTO);
+				if (fileDTO.getFileName() != null && !fileDTO.getFileName().startsWith("data:")) {
+					fileManager.fileDelete(name, fileDTO);
+				}
 			}
 		}
 
